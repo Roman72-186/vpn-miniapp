@@ -58,9 +58,15 @@ window.VPN_APP_CONFIG = {
       url: "https://amnezia.org/ru/downloads"
     },
     {
-      id: "ios",
-      title: "iPhone / iPad",
-      description: "Инструкция Amnezia по установке на iOS",
+      id: "iphone",
+      title: "iPhone",
+      description: "Инструкция Amnezia по установке на iPhone",
+      url: "https://docs.amnezia.org/documentation/instructions/installing-amneziavpn-on-ios/"
+    },
+    {
+      id: "ipad",
+      title: "iPad",
+      description: "Инструкция Amnezia по установке на iPad",
       url: "https://docs.amnezia.org/documentation/instructions/installing-amneziavpn-on-ios/"
     }
   ]

@@ -44,6 +44,10 @@ body {
   backdrop-filter: blur(14px);
 }
 
+.hidden-section {
+  display: none;
+}
+
 .hero,
 .actions {
   display: flex;
@@ -298,6 +302,7 @@ h1 {
   color: var(--accent);
   text-decoration: none;
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .config-box {
@@ -326,6 +331,7 @@ h1 {
   max-height: 260px;
   font-size: 12px;
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .hidden {

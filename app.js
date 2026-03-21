@@ -6,10 +6,13 @@
     title: document.getElementById("title"),
     subtitle: document.getElementById("subtitle"),
     price: document.getElementById("price"),
+    plansSection: document.getElementById("plans-section"),
     plans: document.getElementById("plans"),
     planHint: document.getElementById("plan-hint"),
+    platformsSection: document.getElementById("platforms-section"),
     platforms: document.getElementById("platforms"),
     platformHint: document.getElementById("platform-hint"),
+    actionsSection: document.getElementById("actions-section"),
     planTitle: document.getElementById("plan-title"),
     planDescription: document.getElementById("plan-description"),
     targetSummary: document.getElementById("target-summary"),
@@ -30,10 +33,13 @@
   const state = {
     configText: "",
     plans: [],
-    downloads: [],
+    platforms: [],
     selectedPlanId: "",
     selectedPlatformId: "",
-    user: null
+    user: null,
+    access: null,
+    trialUsed: false,
+    platformRestored: false
   };
 
   function setToast(text) {
@@ -49,6 +55,34 @@
       tg.initDataUnsafe.user &&
       tg.initDataUnsafe.user.id
     );
+  }
+
+  function getStorageKey() {
+    const userId = state.user && state.user.id ? String(state.user.id) : "guest";
+    return `vpn-miniapp-platform:${userId}`;
+  }
+
+  function loadSavedPlatformId() {
+    try {
+      return window.localStorage ? window.localStorage.getItem(getStorageKey()) || "" : "";
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function savePlatformId(platformId) {
+    try {
+      if (!window.localStorage) {
+        return;
+      }
+      if (platformId) {
+        window.localStorage.setItem(getStorageKey(), platformId);
+      } else {
+        window.localStorage.removeItem(getStorageKey());
+      }
+    } catch (error) {
+      // Ignore storage failures in Telegram WebView.
+    }
   }
 
   function normalizePlan(plan) {
@@ -98,9 +132,25 @@
   }
 
   function getCurrentPlatform() {
-    return state.downloads.find(function (item) {
+    return state.platforms.find(function (item) {
       return item.id === state.selectedPlatformId;
     }) || null;
+  }
+
+  function getVisiblePlatforms() {
+    const platforms = state.platforms.length ? state.platforms : getFallbackPlatforms();
+    const selected = getCurrentPlatform();
+
+    if (selected) {
+      return [selected];
+    }
+
+    return platforms;
+  }
+
+  function hasLockedAccess() {
+    const access = state.access || {};
+    return Boolean(access.isActive || access.is_active || access.status === "awaiting_issue");
   }
 
   function getPriceLabel(plan) {
@@ -121,13 +171,16 @@
     const plan = getCurrentPlan();
     const platform = getCurrentPlatform();
     const telegramLocked = !hasTelegramContext();
+    const purchaseLocked = hasLockedAccess();
 
     els.copyButton.disabled = !state.configText;
     els.refreshButton.disabled = telegramLocked;
-    els.buyButton.disabled = telegramLocked || !plan || !platform;
+    els.buyButton.disabled = telegramLocked || purchaseLocked || !plan || !platform;
 
     if (telegramLocked) {
       els.buyButton.textContent = "Откройте в Telegram";
+    } else if (purchaseLocked) {
+      els.buyButton.textContent = "Подписка уже активна";
     } else if (!plan) {
       els.buyButton.textContent = "Выберите тариф";
     } else if (!platform) {
@@ -136,9 +189,24 @@
       els.buyButton.textContent = getPurchaseLabel(plan);
     }
 
+    if (purchaseLocked) {
+      els.targetSummary.textContent = "Новый тариф можно оформить после завершения текущего доступа.";
+      return;
+    }
+
     els.targetSummary.textContent = platform
       ? `Установка: ${platform.title}. Перед оформлением всё готово.`
       : "Сначала выберите устройство для установки.";
+  }
+
+  function applyUiState() {
+    const purchaseLocked = hasLockedAccess();
+    const hasPlanChoices = state.plans.length > 0;
+    const hasPlatformChoices = getVisiblePlatforms().length > 0;
+
+    els.plansSection.classList.toggle("hidden-section", purchaseLocked || !hasPlanChoices);
+    els.platformsSection.classList.toggle("hidden-section", purchaseLocked || !hasPlatformChoices);
+    els.actionsSection.classList.toggle("hidden-section", purchaseLocked);
   }
 
   function setDownloadLink(url) {
@@ -160,6 +228,7 @@
     els.configPreview.textContent = "";
     els.configPreview.classList.add("hidden");
     setDownloadLink("");
+    applyUiState();
     updateActionState();
   }
 
@@ -183,22 +252,26 @@
 
     const user = tg.initDataUnsafe.user || {};
     state.user = user;
+    if (!state.selectedPlatformId) {
+      state.selectedPlatformId = loadSavedPlatformId();
+      state.platformRestored = Boolean(state.selectedPlatformId);
+    }
     els.userName.textContent = user.username ? `@${user.username}` : user.first_name || String(user.id);
     els.userMeta.textContent = `Telegram ID: ${user.id}`;
   }
 
   function renderDownloads(items) {
-    const list = (items && items.length ? items : state.downloads.length ? state.downloads : getFallbackPlatforms())
+    const list = (items && items.length ? items : state.platforms.length ? state.platforms : getFallbackPlatforms())
       .map(normalizePlatform)
       .filter(Boolean);
 
-    state.downloads = list;
+    state.platforms = list;
+    const visiblePlatforms = getVisiblePlatforms().length ? getVisiblePlatforms() : list;
     els.downloads.innerHTML = "";
 
-    list.forEach(function (item) {
-      const isActive = item.id === state.selectedPlatformId;
+    visiblePlatforms.forEach(function (item) {
       const card = document.createElement("div");
-      card.className = `download-item${isActive ? " active" : ""}`;
+      card.className = "download-item active";
 
       const title = document.createElement("strong");
       title.textContent = item.title || "Платформа";
@@ -209,7 +282,7 @@
 
       const link = document.createElement("a");
       link.href = item.url || "#";
-      link.textContent = isActive ? "Открыть выбранную установку" : (item.url ? "Открыть" : "Ссылка будет добавлена");
+      link.textContent = item.url ? "Открыть установку" : "Ссылка будет добавлена";
       link.target = "_blank";
       link.rel = "noreferrer";
 
@@ -221,7 +294,7 @@
   }
 
   function selectPlatform(platformId) {
-    const platform = state.downloads.find(function (item) {
+    const platform = state.platforms.find(function (item) {
       return item.id === platformId;
     });
 
@@ -230,13 +303,11 @@
     }
 
     state.selectedPlatformId = platform.id;
+    state.platformRestored = false;
 
-    Array.from(els.platforms.querySelectorAll(".platform-card")).forEach(function (card) {
-      card.classList.toggle("active", card.dataset.platformId === platform.id);
-    });
-
-    els.platformHint.textContent = `Выбрано: ${platform.title}. Покажем нужную ссылку и шаги установки перед импортом конфига.`;
-    renderDownloads(state.downloads);
+    els.platformHint.textContent = `Выбрано: ${platform.title}. Остальные устройства скрыты, ниже оставили только нужную установку.`;
+    renderPlatforms(state.platforms);
+    renderDownloads(state.platforms);
     updateActionState();
   }
 
@@ -244,13 +315,19 @@
     const platforms = (items && items.length ? items : getFallbackPlatforms())
       .map(normalizePlatform)
       .filter(Boolean);
+    const hasSavedPlatform = state.selectedPlatformId && platforms.some(function (item) {
+      return item.id === state.selectedPlatformId;
+    });
+    const visiblePlatforms = hasSavedPlatform
+      ? platforms.filter(function (item) { return item.id === state.selectedPlatformId; })
+      : platforms;
 
-    state.downloads = platforms;
+    state.platforms = platforms;
     els.platforms.innerHTML = "";
 
-    platforms.forEach(function (platform) {
+    visiblePlatforms.forEach(function (platform) {
       const card = document.createElement("div");
-      card.className = "platform-card";
+      card.className = `platform-card${platform.id === state.selectedPlatformId ? " active" : ""}`;
       card.dataset.platformId = platform.id;
       card.tabIndex = 0;
 
@@ -263,7 +340,7 @@
 
       const meta = document.createElement("div");
       meta.className = "platform-meta";
-      meta.innerHTML = `<span>${platform.url ? "Есть ссылка" : "Ссылка скоро"}</span><span class="platform-cta">Выбрать</span>`;
+      meta.innerHTML = `<span>${platform.url ? "Есть ссылка" : "Ссылка скоро"}</span><span class="platform-cta">${platform.id === state.selectedPlatformId ? "Выбрано" : "Выбрать"}</span>`;
 
       card.appendChild(title);
       card.appendChild(description);
@@ -282,14 +359,12 @@
       els.platforms.appendChild(card);
     });
 
-    if (state.selectedPlatformId && platforms.some(function (item) { return item.id === state.selectedPlatformId; })) {
-      selectPlatform(state.selectedPlatformId);
-      return;
-    }
-
-    els.platformHint.textContent = platforms.length
+    els.platformHint.textContent = hasSavedPlatform
+      ? `Устройство зафиксировано: ${getCurrentPlatform().title}.`
+      : visiblePlatforms.length
       ? "Перед оформлением выберите устройство, чтобы мы показали нужную ссылку и шаги установки."
       : "Список устройств появится после загрузки каталога.";
+    applyUiState();
     updateActionState();
   }
 
@@ -312,7 +387,7 @@
     els.planTitle.textContent = plan.title;
     els.planDescription.textContent = plan.description;
     els.planHint.textContent = plan.isFree
-      ? "Пробный тариф выдаётся один раз на Telegram-пользователя."
+      ? "Пробный тариф можно активировать только один раз."
       : `Срок доступа: ${plan.durationDays} дней.`;
 
     updateActionState();
@@ -321,10 +396,19 @@
   function renderPlans(items, defaultPlanId) {
     const plans = (items && items.length ? items : getFallbackPlans())
       .map(normalizePlan)
-      .filter(Boolean);
+      .filter(Boolean)
+      .filter(function (plan) {
+        if (state.trialUsed && plan.isFree) {
+          return false;
+        }
+        return true;
+      });
 
     state.plans = plans;
     els.plans.innerHTML = "";
+    els.planHint.textContent = state.trialUsed
+      ? "Пробный доступ уже использован. Доступны только платные тарифы."
+      : "3 дня — пробный доступ, 7 и 30 дней — платные планы.";
 
     plans.forEach(function (plan) {
       const card = document.createElement("div");
@@ -371,10 +455,20 @@
       els.plans.appendChild(card);
     });
 
-    const preferredPlanId = defaultPlanId || state.selectedPlanId || (config.app && config.app.defaultPlanId) || (plans[0] && plans[0].planId);
+    const preferredPlanId = state.selectedPlanId && plans.some(function (plan) {
+      return plan.planId === state.selectedPlanId;
+    })
+      ? state.selectedPlanId
+      : defaultPlanId || (config.app && config.app.defaultPlanId) || (plans[0] && plans[0].planId);
+
     if (preferredPlanId) {
       selectPlan(preferredPlanId);
+    } else {
+      els.price.textContent = "Недоступно";
+      updateActionState();
     }
+
+    applyUiState();
   }
 
   function getUserPayload() {
@@ -445,6 +539,7 @@
     }
 
     setDownloadLink(configFileUrl);
+    applyUiState();
     updateActionState();
   }
 
@@ -457,7 +552,13 @@
   }
 
   function renderAccess(data) {
+    state.access = data || null;
+    if (data && data.planId) {
+      state.selectedPlanId = String(data.planId);
+    }
+
     if (!data) {
+      applyUiState();
       resetAccessView();
       return;
     }
@@ -517,10 +618,11 @@
 
     const data = await postJson(config.api.catalogUrl, getUserPayload());
     const plans = data.plans || (data.plan ? [data.plan] : []);
+    const downloads = data.downloads || [];
 
     renderPlans(plans, data.defaultPlanId);
-    renderPlatforms(data.downloads);
-    renderDownloads(data.downloads);
+    renderPlatforms(downloads);
+    renderDownloads(downloads);
   }
 
   async function loadStatus() {
@@ -539,6 +641,21 @@
     }
 
     const data = await postJson(config.api.statusUrl, getUserPayload());
+    state.trialUsed = Boolean(data.trialUsed);
+    if (data.access && (data.access.isActive || data.access.is_active || data.access.status === "awaiting_issue" || data.access.status === "pending_payment")) {
+      if (state.selectedPlatformId) {
+        savePlatformId(state.selectedPlatformId);
+      }
+    } else {
+      savePlatformId("");
+      if (state.platformRestored) {
+        state.selectedPlatformId = "";
+      }
+      state.platformRestored = false;
+    }
+    renderPlans(state.plans.length ? state.plans : getFallbackPlans(), state.selectedPlanId || (config.app && config.app.defaultPlanId));
+    renderPlatforms(state.platforms.length ? state.platforms : getFallbackPlatforms());
+    renderDownloads(state.platforms.length ? state.platforms : getFallbackPlatforms());
     renderAccess(data.access || data);
   }
 
@@ -564,6 +681,9 @@
       setToast("Сначала выберите устройство");
       return;
     }
+
+    savePlatformId(platform.id);
+    state.platformRestored = false;
 
     els.buyButton.disabled = true;
     els.buyButton.textContent = plan.isFree ? "Выдаём доступ..." : "Готовим оплату...";
