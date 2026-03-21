@@ -53,13 +53,43 @@
     });
 
     const text = await response.text();
-    const data = text ? JSON.parse(text) : {};
+    let data = {};
+
+    if (text) {
+      try {
+        data = JSON.parse(text);
+      } catch (error) {
+        throw new Error("Сервер вернул непонятный ответ");
+      }
+    }
 
     if (!response.ok) {
       throw new Error(data.message || data.detail || "Ошибка запроса");
     }
 
     return data;
+  }
+
+  function setDownloadLink(url) {
+    if (url) {
+      els.downloadLink.href = url;
+      els.downloadLink.classList.remove("disabled-link");
+      return;
+    }
+
+    els.downloadLink.href = "#";
+    els.downloadLink.classList.add("disabled-link");
+  }
+
+  function resetAccessView(message, meta, boxText) {
+    state.configText = "";
+    els.accessStatus.textContent = message || "Нет активного доступа";
+    els.accessMeta.textContent = meta || "После оплаты доступ появится здесь.";
+    els.configBox.textContent = boxText || "После оплаты здесь появится `.conf`.";
+    els.configPreview.textContent = "";
+    els.configPreview.classList.add("hidden");
+    els.copyButton.disabled = true;
+    setDownloadLink("");
   }
 
   function renderBase() {
@@ -110,37 +140,70 @@
     });
   }
 
-  function renderAccess(data) {
-    if (!data || !data.isActive) {
-      els.accessStatus.textContent = "Нет активного доступа";
-      els.accessMeta.textContent = "После оплаты доступ появится здесь.";
-      els.configBox.textContent = "После оплаты здесь появится `.conf`.";
-      els.configPreview.classList.add("hidden");
-      els.copyButton.disabled = true;
-      els.downloadLink.classList.add("disabled-link");
-      els.downloadLink.href = "#";
-      state.configText = "";
-      return;
-    }
-
-    const expiresAt = data.expiresAt || data.expires_at || "";
+  function renderActiveAccess(data, expiresAt) {
     const ip = data.ipAddress || data.ip_address || "IP не указан";
-    state.configText = data.configText || data.config_text || "";
+    const configText = data.configText || data.config_text || "";
+    const configFileUrl = data.configFileUrl || data.config_file_url || "";
 
+    state.configText = configText;
     els.accessStatus.textContent = "Доступ активен";
     els.accessMeta.textContent = expiresAt ? `Оплачен до ${expiresAt}` : "Доступ подтверждён";
     els.configBox.innerHTML = `<strong>IP:</strong> ${ip}<br><strong>Срок:</strong> ${expiresAt || "не указан"}`;
 
-    if (state.configText) {
-      els.configPreview.textContent = state.configText;
+    if (configText) {
+      els.configPreview.textContent = configText;
       els.configPreview.classList.remove("hidden");
       els.copyButton.disabled = false;
+    } else {
+      els.configPreview.textContent = "";
+      els.configPreview.classList.add("hidden");
+      els.copyButton.disabled = true;
     }
 
-    if (data.configFileUrl || data.config_file_url) {
-      els.downloadLink.href = data.configFileUrl || data.config_file_url;
-      els.downloadLink.classList.remove("disabled-link");
+    setDownloadLink(configFileUrl);
+  }
+
+  function renderPendingAccess(data, expiresAt) {
+    resetAccessView(
+      data.statusLabel || "Оплата получена",
+      expiresAt ? `Срок доступа уже рассчитан до ${expiresAt}` : "Ждём выдачу конфигурации новым VPN-сервером.",
+      "Как только сервер выдаст `.conf`, он появится здесь."
+    );
+  }
+
+  function renderAccess(data) {
+    if (!data) {
+      resetAccessView();
+      return;
     }
+
+    const expiresAt = data.expiresAt || data.expires_at || "";
+    const status = data.status || "";
+
+    if (data.isActive) {
+      renderActiveAccess(data, expiresAt);
+      return;
+    }
+
+    if (status === "awaiting_issue") {
+      renderPendingAccess(data, expiresAt);
+      return;
+    }
+
+    if (status === "pending_payment") {
+      resetAccessView(
+        data.statusLabel || "Счёт создан",
+        "Откройте оплату и завершите покупку.",
+        "После оплаты здесь появится статус доступа и конфигурация."
+      );
+      return;
+    }
+
+    resetAccessView(
+      data.statusLabel || "Нет активного доступа",
+      "После оплаты доступ появится здесь.",
+      "После оплаты здесь появится `.conf`."
+    );
   }
 
   async function loadCatalog() {
@@ -151,6 +214,16 @@
 
     const payload = getUserPayload();
     const data = await postJson(config.api.catalogUrl, payload);
+
+    if (data.plan) {
+      if (data.plan.title) {
+        els.planTitle.textContent = data.plan.title;
+      }
+      if (data.plan.amountStars) {
+        els.price.textContent = `${data.plan.amountStars} Stars`;
+      }
+    }
+
     renderDownloads(data.downloads);
   }
 
