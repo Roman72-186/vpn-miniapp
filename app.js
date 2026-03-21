@@ -33,6 +33,20 @@
     copyButton: document.getElementById("copy-button"),
     downloadLink: document.getElementById("download-link"),
     downloadTextLink: document.getElementById("download-text-link"),
+    instructionTitle: document.getElementById("instruction-title"),
+    instructionBadge: document.getElementById("instruction-badge"),
+    instructionEmpty: document.getElementById("instruction-empty"),
+    instructionCard: document.getElementById("instruction-card"),
+    instructionPlatform: document.getElementById("instruction-platform"),
+    instructionState: document.getElementById("instruction-state"),
+    instructionSummary: document.getElementById("instruction-summary"),
+    instructionSteps: document.getElementById("instruction-steps"),
+    instructionLink: document.getElementById("instruction-link"),
+    qrModal: document.getElementById("qr-modal"),
+    qrModalCanvas: document.getElementById("qr-modal-canvas"),
+    qrModalHint: document.getElementById("qr-modal-hint"),
+    qrModalTitle: document.getElementById("qr-modal-title"),
+    qrModalClose: document.getElementById("qr-modal-close"),
     toast: document.getElementById("toast")
   };
 
@@ -49,6 +63,98 @@
     qrVisible: false,
     confDownloadUrl: "",
     textDownloadUrl: ""
+  };
+
+  const IMPORT_GUIDES = {
+    windows: {
+      waitingSummary: "Сначала установите AmneziaVPN на Windows, затем вернитесь сюда и получите конфиг.",
+      readySummary: "На Windows удобнее всего скачать .conf или .txt и импортировать конфигурацию прямо в приложении.",
+      waitingSteps: [
+        "Откройте страницу установки и поставьте AmneziaVPN на компьютер.",
+        "Вернитесь в miniapp и выберите тариф, когда приложение уже установлено.",
+        "После выдачи конфигурации скачайте .conf или .txt из блока «Конфиг»."
+      ],
+      readySteps: [
+        "Скачайте .conf или .txt из блока «Конфиг».",
+        "Откройте AmneziaVPN и выберите импорт существующей конфигурации.",
+        "Укажите файл .conf или вставьте текст вручную.",
+        "Сохраните профиль и нажмите «Подключить»."
+      ]
+    },
+    macos: {
+      waitingSummary: "Установите AmneziaVPN на macOS заранее — после этого конфиг можно будет сразу импортировать.",
+      readySummary: "На macOS тоже лучше использовать .conf или .txt, а QR оставить как запасной путь.",
+      waitingSteps: [
+        "Скачайте и установите AmneziaVPN для macOS.",
+        "Вернитесь в miniapp и оформите нужный тариф.",
+        "Когда конфиг появится, сохраните файл .conf или .txt."
+      ],
+      readySteps: [
+        "Скачайте .conf или .txt из miniapp.",
+        "В AmneziaVPN откройте импорт конфигурации.",
+        "Выберите файл или вставьте текст вручную.",
+        "Сохраните профиль и подключитесь."
+      ]
+    },
+    android: {
+      waitingSummary: "На Android можно подключаться и по файлу, и по тексту, и по QR — сначала поставьте приложение.",
+      readySummary: "Когда конфиг уже выдан, на Android можно использовать любой из трёх способов: QR, .conf или .txt.",
+      waitingSteps: [
+        "Установите AmneziaVPN на Android по ссылке ниже.",
+        "Вернитесь в miniapp и оформите доступ.",
+        "Когда конфиг будет готов, выберите удобный способ импорта: QR, .conf или .txt."
+      ],
+      readySteps: [
+        "Нажмите «Открыть QR» или скачайте .conf / .txt.",
+        "В AmneziaVPN выберите добавление или импорт конфигурации.",
+        "Отсканируйте QR либо выберите файл / вставьте текст.",
+        "Сохраните профиль и включите VPN."
+      ]
+    },
+    iphone: {
+      waitingSummary: "Для iPhone сначала откройте инструкцию по установке AmneziaVPN, затем возвращайтесь сюда за конфигом.",
+      readySummary: "На iPhone обычно удобнее скачать .conf или .txt, а QR открыть на другом экране, если он нужен.",
+      waitingSteps: [
+        "Откройте инструкцию ниже и установите AmneziaVPN на iPhone.",
+        "Вернитесь в miniapp и получите пробный или платный доступ.",
+        "Когда конфиг появится, скачайте .conf / .txt или откройте QR на другом устройстве."
+      ],
+      readySteps: [
+        "Скачайте .conf или .txt из блока «Конфиг».",
+        "Откройте AmneziaVPN и выберите импорт конфигурации.",
+        "Выберите файл в приложении «Файлы» или вставьте текст вручную.",
+        "Сохраните профиль и подключитесь."
+      ]
+    },
+    ipad: {
+      waitingSummary: "Для iPad сначала установите AmneziaVPN по инструкции, затем вернитесь сюда за конфигом.",
+      readySummary: "На iPad подойдут и файл, и текст, а QR удобнее показывать на отдельном экране.",
+      waitingSteps: [
+        "Откройте инструкцию ниже и установите AmneziaVPN на iPad.",
+        "Вернитесь в miniapp и оформите доступ.",
+        "После выдачи конфига скачайте .conf или .txt — QR тоже останется доступен."
+      ],
+      readySteps: [
+        "Скачайте .conf или .txt в miniapp.",
+        "В AmneziaVPN выберите импорт конфигурации.",
+        "Выберите файл из «Файлов» или вставьте текст вручную.",
+        "Сохраните профиль и включите подключение."
+      ]
+    },
+    default: {
+      waitingSummary: "Сначала установите AmneziaVPN, затем вернитесь сюда за конфигом.",
+      readySummary: "Когда конфиг готов, можно импортировать его файлом, текстом или по QR.",
+      waitingSteps: [
+        "Установите AmneziaVPN на выбранное устройство.",
+        "Вернитесь в miniapp и оформите доступ.",
+        "После выдачи используйте QR, .conf или .txt."
+      ],
+      readySteps: [
+        "Получите конфиг в miniapp.",
+        "Импортируйте его в AmneziaVPN любым удобным способом.",
+        "Сохраните профиль и подключитесь."
+      ]
+    }
   };
 
   function setToast(text) {
@@ -84,13 +190,14 @@
       if (!window.localStorage) {
         return;
       }
+
       if (platformId) {
         window.localStorage.setItem(getStorageKey(), platformId);
       } else {
         window.localStorage.removeItem(getStorageKey());
       }
     } catch (error) {
-      // Ignore storage failures in Telegram WebView.
+      // Ignore storage failures inside Telegram WebView.
     }
   }
 
@@ -149,12 +256,7 @@
   function getVisiblePlatforms() {
     const platforms = state.platforms.length ? state.platforms : getFallbackPlatforms();
     const selected = getCurrentPlatform();
-
-    if (selected) {
-      return [selected];
-    }
-
-    return platforms;
+    return selected ? [selected] : platforms;
   }
 
   function hasLockedAccess() {
@@ -163,11 +265,39 @@
   }
 
   function isMobilePlatform(platform) {
+    return Boolean(platform && ["android", "iphone", "ipad"].includes(platform.id));
+  }
+
+  function isCompactViewport() {
+    return window.matchMedia("(max-width: 640px)").matches;
+  }
+
+  function getDownloadLabel(platform) {
     if (!platform) {
-      return false;
+      return "Открыть установку";
     }
 
-    return ["android", "iphone", "ipad"].includes(platform.id);
+    return ["iphone", "ipad"].includes(platform.id)
+      ? "Открыть инструкцию"
+      : "Скачать приложение";
+  }
+
+  function getInstructionLinkLabel(platform) {
+    if (!platform) {
+      return "Открыть установку";
+    }
+
+    return ["iphone", "ipad"].includes(platform.id)
+      ? `Открыть инструкцию для ${platform.title}`
+      : `Открыть установку для ${platform.title}`;
+  }
+
+  function getGuide(platform) {
+    if (!platform) {
+      return IMPORT_GUIDES.default;
+    }
+
+    return IMPORT_GUIDES[platform.id] || IMPORT_GUIDES.default;
   }
 
   function revokeDownloadUrl(key) {
@@ -196,6 +326,8 @@
     }
     if (filename) {
       element.setAttribute("download", filename);
+    } else {
+      element.removeAttribute("download");
     }
   }
 
@@ -232,25 +364,17 @@
     setLinkState(els.downloadTextLink, state.textDownloadUrl, "Скачать .txt", `${baseName}.txt`);
   }
 
-  function hideQr() {
-    state.qrVisible = false;
-    els.qrSection.classList.add("hidden");
-    els.qrButton.textContent = "Показать QR";
-  }
-
-  function showQr() {
-    const configText = state.configText;
-
-    if (!configText || !window.QRCode || typeof window.QRCode.toCanvas !== "function") {
+  function renderQrCanvas(canvas, size, onSuccess) {
+    if (!state.configText || !window.QRCode || typeof window.QRCode.toCanvas !== "function") {
       setToast("Не удалось построить QR-код");
       return;
     }
 
     window.QRCode.toCanvas(
-      els.qrCanvas,
-      configText,
+      canvas,
+      state.configText,
       {
-        width: 240,
+        width: size,
         margin: 1,
         color: {
           dark: "#08223a",
@@ -263,11 +387,49 @@
           return;
         }
 
-        state.qrVisible = true;
-        els.qrSection.classList.remove("hidden");
-        els.qrButton.textContent = "Скрыть QR";
+        if (typeof onSuccess === "function") {
+          onSuccess();
+        }
       }
     );
+  }
+
+  function closeQrModal() {
+    els.qrModal.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+  }
+
+  function openQrModal() {
+    const platform = getCurrentPlatform();
+    const modalHint = isMobilePlatform(platform)
+      ? "Если miniapp открыта на этом же телефоне, удобнее скачать .conf или .txt. QR полезен для второго экрана."
+      : "Откройте QR на другом устройстве или используйте .conf / .txt для ручного импорта.";
+
+    renderQrCanvas(els.qrModalCanvas, 320, function () {
+      els.qrModalTitle.textContent = platform ? `QR для ${platform.title}` : "QR для импорта";
+      els.qrModalHint.textContent = modalHint;
+      els.qrModal.classList.remove("hidden");
+      document.body.classList.add("modal-open");
+    });
+  }
+
+  function hideQr() {
+    state.qrVisible = false;
+    els.qrSection.classList.add("hidden");
+  }
+
+  function showQr() {
+    const platform = getCurrentPlatform();
+    const hint = isMobilePlatform(platform)
+      ? "Если miniapp открыта на этом же телефоне, удобнее скачать .conf или .txt. QR лучше открыть на другом экране."
+      : "QR удобно показать на большом экране и отсканировать с телефона. Для компьютера можно просто скачать .conf.";
+
+    renderQrCanvas(els.qrCanvas, 240, function () {
+      state.qrVisible = true;
+      els.qrSection.classList.remove("hidden");
+      els.qrHint.textContent = hint;
+      els.qrButton.textContent = "Скрыть QR";
+    });
   }
 
   function toggleQr() {
@@ -275,8 +437,14 @@
       return;
     }
 
+    if (isCompactViewport()) {
+      openQrModal();
+      return;
+    }
+
     if (state.qrVisible) {
       hideQr();
+      updateActionState();
       return;
     }
 
@@ -287,6 +455,7 @@
     if (!plan) {
       return "Выберите тариф";
     }
+
     return plan.amountStars > 0 ? `${plan.amountStars} Stars` : "Бесплатно";
   }
 
@@ -294,7 +463,54 @@
     if (!plan) {
       return "Выберите тариф";
     }
+
     return plan.amountStars > 0 ? `Купить за ${plan.amountStars} Stars` : "Получить бесплатно";
+  }
+
+  function renderImportGuide() {
+    const platform = getCurrentPlatform();
+    const hasConfig = Boolean(state.configText);
+
+    if (!platform) {
+      els.instructionTitle.textContent = "Как подключить";
+      els.instructionBadge.textContent = "Выберите устройство выше — здесь появятся шаги установки и импорта.";
+      els.instructionEmpty.classList.remove("hidden");
+      els.instructionCard.classList.add("hidden");
+      setLinkState(els.instructionLink, "", "Открыть установку");
+      return;
+    }
+
+    const guide = getGuide(platform);
+    const summary = hasConfig ? guide.readySummary : guide.waitingSummary;
+    const steps = hasConfig ? guide.readySteps : guide.waitingSteps;
+    const accessState = hasConfig
+      ? "Конфиг выдан"
+      : hasLockedAccess()
+      ? "Ждём конфиг"
+      : "Ещё не оформлено";
+
+    els.instructionTitle.textContent = hasConfig ? `Как подключить ${platform.title}` : `Подготовка ${platform.title}`;
+    els.instructionBadge.textContent = hasConfig
+      ? "Конфиг готов: можно импортировать"
+      : "Сначала поставьте приложение, потом оформляйте доступ";
+    els.instructionPlatform.textContent = platform.title;
+    els.instructionState.textContent = accessState;
+    els.instructionSummary.textContent = summary;
+    els.instructionSteps.innerHTML = "";
+
+    steps.forEach(function (stepText) {
+      const item = document.createElement("li");
+      item.textContent = stepText;
+      els.instructionSteps.appendChild(item);
+    });
+
+    els.instructionEmpty.classList.add("hidden");
+    els.instructionCard.classList.remove("hidden");
+    setLinkState(els.instructionLink, platform.url, getInstructionLinkLabel(platform));
+    if (platform.url) {
+      els.instructionLink.setAttribute("target", "_blank");
+      els.instructionLink.setAttribute("rel", "noreferrer");
+    }
   }
 
   function updateActionState() {
@@ -308,6 +524,11 @@
     els.qrButton.disabled = !hasConfig;
     els.refreshButton.disabled = telegramLocked;
     els.buyButton.disabled = telegramLocked || purchaseLocked || !plan || !platform;
+    els.qrButton.textContent = isCompactViewport()
+      ? "Открыть QR"
+      : state.qrVisible
+      ? "Скрыть QR"
+      : "Показать QR";
 
     if (telegramLocked) {
       els.buyButton.textContent = "Откройте в Telegram";
@@ -323,24 +544,26 @@
 
     if (purchaseLocked) {
       els.targetSummary.textContent = "Новый тариф можно оформить после завершения текущего доступа.";
-      return;
+    } else {
+      els.targetSummary.textContent = platform
+        ? `Установка: ${platform.title}. Перед оформлением всё готово.`
+        : "Сначала выберите устройство для установки.";
     }
 
-    els.targetSummary.textContent = platform
-      ? `Установка: ${platform.title}. Перед оформлением всё готово.`
-      : "Сначала выберите устройство для установки.";
-
     if (!hasConfig) {
-      els.configHelp.textContent = "После выдачи можно будет показать QR-код, скачать `.conf`, скачать `.txt` и скопировать текст.";
+      els.configHelp.textContent = "После выдачи можно будет открыть QR, скачать .conf, скачать .txt и скопировать текст.";
+      renderImportGuide();
       return;
     }
 
     if (isMobilePlatform(platform)) {
-      els.configHelp.textContent = "Для телефона можно показать QR-код или скачать `.conf`/`.txt` и импортировать вручную.";
+      els.configHelp.textContent = "Для телефона доступны .conf, .txt и полноэкранный QR. Если miniapp открыта на том же устройстве, удобнее использовать файл или текст.";
+      renderImportGuide();
       return;
     }
 
-    els.configHelp.textContent = "Для компьютера удобнее скачать `.conf` или `.txt`. QR-код тоже доступен как запасной вариант.";
+    els.configHelp.textContent = "Для компьютера удобнее скачать .conf или .txt. QR-код тоже можно открыть на весь экран как запасной вариант.";
+    renderImportGuide();
   }
 
   function applyUiState() {
@@ -356,13 +579,13 @@
   function resetAccessView(message, meta, boxText) {
     state.configText = "";
     hideQr();
+    closeQrModal();
     clearGeneratedDownloads();
     els.accessStatus.textContent = message || "Нет активного доступа";
     els.accessMeta.textContent = meta || "После оплаты доступ появится здесь.";
-    els.configBox.textContent = boxText || "После оплаты здесь появится `.conf`.";
+    els.configBox.textContent = boxText || "После оплаты здесь появится .conf.";
     els.configPreview.textContent = "";
     els.configPreview.classList.add("hidden");
-    setDownloadLink("");
     applyUiState();
     updateActionState();
   }
@@ -417,7 +640,7 @@
 
       const link = document.createElement("a");
       link.href = item.url || "#";
-      link.textContent = item.url ? "Открыть установку" : "Ссылка будет добавлена";
+      link.textContent = item.url ? getDownloadLabel(item) : "Ссылка будет добавлена";
       link.target = "_blank";
       link.rel = "noreferrer";
 
@@ -439,7 +662,6 @@
 
     state.selectedPlatformId = platform.id;
     state.platformRestored = false;
-
     els.platformHint.textContent = `Выбрано: ${platform.title}. Остальные устройства скрыты, ниже оставили только нужную установку.`;
     renderPlatforms(state.platforms);
     renderDownloads(state.platforms);
@@ -454,7 +676,9 @@
       return item.id === state.selectedPlatformId;
     });
     const visiblePlatforms = hasSavedPlatform
-      ? platforms.filter(function (item) { return item.id === state.selectedPlatformId; })
+      ? platforms.filter(function (item) {
+          return item.id === state.selectedPlatformId;
+        })
       : platforms;
 
     state.platforms = platforms;
@@ -499,6 +723,7 @@
       : visiblePlatforms.length
       ? "Перед оформлением выберите устройство, чтобы мы показали нужную ссылку и шаги установки."
       : "Список устройств появится после загрузки каталога.";
+
     applyUiState();
     updateActionState();
   }
@@ -533,10 +758,7 @@
       .map(normalizePlan)
       .filter(Boolean)
       .filter(function (plan) {
-        if (state.trialUsed && plan.isFree) {
-          return false;
-        }
-        return true;
+        return !(state.trialUsed && plan.isFree);
       });
 
     state.plans = plans;
@@ -677,11 +899,9 @@
     if (configFileUrl) {
       setLinkState(els.downloadLink, configFileUrl, "Скачать .conf");
     }
-    if (isMobilePlatform(platform)) {
-      showQr();
-    } else {
-      hideQr();
-    }
+
+    hideQr();
+    closeQrModal();
     applyUiState();
     updateActionState();
   }
@@ -690,7 +910,7 @@
     resetAccessView(
       data.statusLabel || "Оплата получена",
       expiresAt ? `Срок доступа уже рассчитан до ${expiresAt}` : "Ждём выдачу конфигурации новым VPN-сервером.",
-      "Как только сервер выдаст `.conf`, он появится здесь."
+      "Как только сервер выдаст .conf, он появится здесь."
     );
   }
 
@@ -740,19 +960,12 @@
     resetAccessView(
       data.statusLabel || "Нет активного доступа",
       "После оплаты доступ появится здесь.",
-      "После оплаты здесь появится `.conf`."
+      "После оплаты здесь появится .conf."
     );
   }
 
   async function loadCatalog() {
-    if (!hasTelegramContext()) {
-      renderPlans(getFallbackPlans(), config.app && config.app.defaultPlanId);
-      renderPlatforms();
-      renderDownloads();
-      return;
-    }
-
-    if (!config.api || !config.api.catalogUrl) {
+    if (!hasTelegramContext() || !config.api || !config.api.catalogUrl) {
       renderPlans(getFallbackPlans(), config.app && config.app.defaultPlanId);
       renderPlatforms();
       renderDownloads();
@@ -785,7 +998,14 @@
 
     const data = await postJson(config.api.statusUrl, getUserPayload());
     state.trialUsed = Boolean(data.trialUsed);
-    if (data.access && (data.access.isActive || data.access.is_active || data.access.status === "awaiting_issue" || data.access.status === "pending_payment")) {
+
+    if (
+      data.access &&
+      (data.access.isActive ||
+        data.access.is_active ||
+        data.access.status === "awaiting_issue" ||
+        data.access.status === "pending_payment")
+    ) {
       if (state.selectedPlatformId) {
         savePlatformId(state.selectedPlatformId);
       }
@@ -796,6 +1016,7 @@
       }
       state.platformRestored = false;
     }
+
     renderPlans(state.plans.length ? state.plans : getFallbackPlans(), state.selectedPlanId || (config.app && config.app.defaultPlanId));
     renderPlatforms(state.platforms.length ? state.platforms : getFallbackPlatforms());
     renderDownloads(state.platforms.length ? state.platforms : getFallbackPlatforms());
@@ -888,7 +1109,21 @@
       return;
     }
 
-    await navigator.clipboard.writeText(state.configText);
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(state.configText);
+      setToast("Конфиг скопирован");
+      return;
+    }
+
+    const textarea = document.createElement("textarea");
+    textarea.value = state.configText;
+    textarea.setAttribute("readonly", "readonly");
+    textarea.style.position = "absolute";
+    textarea.style.left = "-9999px";
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
     setToast("Конфиг скопирован");
   }
 
@@ -901,12 +1136,34 @@
 
     window.addEventListener("beforeunload", function () {
       clearGeneratedDownloads();
+      closeQrModal();
+    });
+
+    window.addEventListener("resize", function () {
+      if (isCompactViewport()) {
+        hideQr();
+      }
+      updateActionState();
+    });
+
+    window.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        closeQrModal();
+      }
     });
 
     els.buyButton.addEventListener("click", buyAccess);
     els.refreshButton.addEventListener("click", refreshStatus);
     els.qrButton.addEventListener("click", function () {
       toggleQr();
+    });
+    els.qrModalClose.addEventListener("click", function () {
+      closeQrModal();
+    });
+    els.qrModal.addEventListener("click", function (event) {
+      if (event.target === els.qrModal || event.target.dataset.close === "true") {
+        closeQrModal();
+      }
     });
     els.copyButton.addEventListener("click", function () {
       copyConfig().catch(function () {
