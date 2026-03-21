@@ -36,6 +36,10 @@ body {
   gap: 16px;
 }
 
+.app > * {
+  min-width: 0;
+}
+
 .card {
   background: var(--panel);
   border: 1px solid var(--panel-border);
@@ -43,6 +47,8 @@ body {
   padding: 20px;
   box-shadow: var(--shadow);
   backdrop-filter: blur(14px);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .hidden-section {
@@ -245,6 +251,10 @@ h1 {
   flex-wrap: wrap;
 }
 
+.config-actions .button {
+  flex: 1 1 180px;
+}
+
 .button {
   border: 0;
   text-decoration: none;
@@ -312,6 +322,7 @@ h1 {
   background: rgba(255, 255, 255, 0.03);
   border: 1px dashed rgba(255, 255, 255, 0.14);
   color: var(--muted);
+  overflow-wrap: anywhere;
 }
 
 .top-gap {
@@ -320,6 +331,29 @@ h1 {
 
 .target-summary {
   margin: 14px 0 0;
+}
+
+.qr-section {
+  margin-top: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.qr-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(56, 211, 159, 0.1), rgba(255, 160, 67, 0.08));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.qr-card canvas {
+  width: min(100%, 240px);
+  height: auto;
+  border-radius: 14px;
+  background: #f4f7fb;
 }
 
 .config-preview {
@@ -333,6 +367,8 @@ h1 {
   font-size: 12px;
   line-height: 1.5;
   overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .hidden {
@@ -347,26 +383,47 @@ h1 {
   font-size: 13px;
 }
 
-@media (max-width: 840px) {
+@media (max-width: 960px) {
   .hero,
   .actions,
   .grid {
-    grid-template-columns: 1fr;
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .platform-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .section-head,
   .plan-list,
   .platform-list {
-    grid-template-columns: 1fr;
     flex-direction: column;
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 640px) {
   .app {
-    padding: 14px 10px 28px;
+    width: 100%;
+    padding: 12px 8px 24px;
+    gap: 12px;
+  }
+
+  .card {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .price-box {
+    min-width: 0;
   }
 
   .buttons {
@@ -383,5 +440,19 @@ h1 {
 
   .platform-list {
     grid-template-columns: 1fr;
+  }
+
+  .config-actions .button {
+    flex-basis: auto;
+  }
+
+  .section-head {
+    gap: 10px;
+  }
+
+  .plan-card-title,
+  .plan-meta,
+  .platform-meta {
+    gap: 8px;
   }
 }

@@ -24,9 +24,15 @@
     buyButton: document.getElementById("buy-button"),
     refreshButton: document.getElementById("refresh-button"),
     configBox: document.getElementById("config-box"),
+    configHelp: document.getElementById("config-help"),
     configPreview: document.getElementById("config-preview"),
+    qrButton: document.getElementById("qr-button"),
+    qrSection: document.getElementById("qr-section"),
+    qrCanvas: document.getElementById("qr-canvas"),
+    qrHint: document.getElementById("qr-hint"),
     copyButton: document.getElementById("copy-button"),
     downloadLink: document.getElementById("download-link"),
+    downloadTextLink: document.getElementById("download-text-link"),
     toast: document.getElementById("toast")
   };
 
@@ -39,7 +45,10 @@
     user: null,
     access: null,
     trialUsed: false,
-    platformRestored: false
+    platformRestored: false,
+    qrVisible: false,
+    confDownloadUrl: "",
+    textDownloadUrl: ""
   };
 
   function setToast(text) {
@@ -153,6 +162,127 @@
     return Boolean(access.isActive || access.is_active || access.status === "awaiting_issue");
   }
 
+  function isMobilePlatform(platform) {
+    if (!platform) {
+      return false;
+    }
+
+    return ["android", "iphone", "ipad"].includes(platform.id);
+  }
+
+  function revokeDownloadUrl(key) {
+    const currentUrl = state[key];
+    if (currentUrl && currentUrl.startsWith("blob:")) {
+      window.URL.revokeObjectURL(currentUrl);
+    }
+    state[key] = "";
+  }
+
+  function setLinkState(element, url, label, filename) {
+    if (!url) {
+      element.href = "#";
+      element.classList.add("disabled-link");
+      if (label) {
+        element.textContent = label;
+      }
+      element.removeAttribute("download");
+      return;
+    }
+
+    element.href = url;
+    element.classList.remove("disabled-link");
+    if (label) {
+      element.textContent = label;
+    }
+    if (filename) {
+      element.setAttribute("download", filename);
+    }
+  }
+
+  function clearGeneratedDownloads() {
+    revokeDownloadUrl("confDownloadUrl");
+    revokeDownloadUrl("textDownloadUrl");
+    setLinkState(els.downloadLink, "", "Скачать .conf");
+    setLinkState(els.downloadTextLink, "", "Скачать .txt");
+  }
+
+  function buildFileBaseName() {
+    const platform = getCurrentPlatform();
+    const plan = getCurrentPlan();
+    const platformSuffix = platform ? `-${platform.id}` : "";
+    const planSuffix = plan ? `-${plan.planId}` : "";
+    return `creativeanalytic-vpn${planSuffix}${platformSuffix}`;
+  }
+
+  function setGeneratedDownloads(configText) {
+    clearGeneratedDownloads();
+
+    if (!configText) {
+      return;
+    }
+
+    const baseName = buildFileBaseName();
+    const confBlob = new Blob([configText], { type: "text/plain;charset=utf-8" });
+    const txtBlob = new Blob([configText], { type: "text/plain;charset=utf-8" });
+
+    state.confDownloadUrl = window.URL.createObjectURL(confBlob);
+    state.textDownloadUrl = window.URL.createObjectURL(txtBlob);
+
+    setLinkState(els.downloadLink, state.confDownloadUrl, "Скачать .conf", `${baseName}.conf`);
+    setLinkState(els.downloadTextLink, state.textDownloadUrl, "Скачать .txt", `${baseName}.txt`);
+  }
+
+  function hideQr() {
+    state.qrVisible = false;
+    els.qrSection.classList.add("hidden");
+    els.qrButton.textContent = "Показать QR";
+  }
+
+  function showQr() {
+    const configText = state.configText;
+
+    if (!configText || !window.QRCode || typeof window.QRCode.toCanvas !== "function") {
+      setToast("Не удалось построить QR-код");
+      return;
+    }
+
+    window.QRCode.toCanvas(
+      els.qrCanvas,
+      configText,
+      {
+        width: 240,
+        margin: 1,
+        color: {
+          dark: "#08223a",
+          light: "#f4f7fb"
+        }
+      },
+      function (error) {
+        if (error) {
+          setToast("Не удалось построить QR-код");
+          return;
+        }
+
+        state.qrVisible = true;
+        els.qrSection.classList.remove("hidden");
+        els.qrButton.textContent = "Скрыть QR";
+      }
+    );
+  }
+
+  function toggleQr() {
+    if (!state.configText) {
+      return;
+    }
+
+    if (state.qrVisible) {
+      hideQr();
+      return;
+    }
+
+    showQr();
+  }
+
   function getPriceLabel(plan) {
     if (!plan) {
       return "Выберите тариф";
@@ -172,8 +302,10 @@
     const platform = getCurrentPlatform();
     const telegramLocked = !hasTelegramContext();
     const purchaseLocked = hasLockedAccess();
+    const hasConfig = Boolean(state.configText);
 
-    els.copyButton.disabled = !state.configText;
+    els.copyButton.disabled = !hasConfig;
+    els.qrButton.disabled = !hasConfig;
     els.refreshButton.disabled = telegramLocked;
     els.buyButton.disabled = telegramLocked || purchaseLocked || !plan || !platform;
 
@@ -197,6 +329,18 @@
     els.targetSummary.textContent = platform
       ? `Установка: ${platform.title}. Перед оформлением всё готово.`
       : "Сначала выберите устройство для установки.";
+
+    if (!hasConfig) {
+      els.configHelp.textContent = "После выдачи можно будет показать QR-код, скачать `.conf`, скачать `.txt` и скопировать текст.";
+      return;
+    }
+
+    if (isMobilePlatform(platform)) {
+      els.configHelp.textContent = "Для телефона можно показать QR-код или скачать `.conf`/`.txt` и импортировать вручную.";
+      return;
+    }
+
+    els.configHelp.textContent = "Для компьютера удобнее скачать `.conf` или `.txt`. QR-код тоже доступен как запасной вариант.";
   }
 
   function applyUiState() {
@@ -209,19 +353,10 @@
     els.actionsSection.classList.toggle("hidden-section", purchaseLocked);
   }
 
-  function setDownloadLink(url) {
-    if (url) {
-      els.downloadLink.href = url;
-      els.downloadLink.classList.remove("disabled-link");
-      return;
-    }
-
-    els.downloadLink.href = "#";
-    els.downloadLink.classList.add("disabled-link");
-  }
-
   function resetAccessView(message, meta, boxText) {
     state.configText = "";
+    hideQr();
+    clearGeneratedDownloads();
     els.accessStatus.textContent = message || "Нет активного доступа";
     els.accessMeta.textContent = meta || "После оплаты доступ появится здесь.";
     els.configBox.textContent = boxText || "После оплаты здесь появится `.conf`.";
@@ -538,7 +673,15 @@
       els.configPreview.classList.add("hidden");
     }
 
-    setDownloadLink(configFileUrl);
+    setGeneratedDownloads(configText);
+    if (configFileUrl) {
+      setLinkState(els.downloadLink, configFileUrl, "Скачать .conf");
+    }
+    if (isMobilePlatform(platform)) {
+      showQr();
+    } else {
+      hideQr();
+    }
     applyUiState();
     updateActionState();
   }
@@ -756,8 +899,15 @@
     renderDownloads();
     renderAccess(null);
 
+    window.addEventListener("beforeunload", function () {
+      clearGeneratedDownloads();
+    });
+
     els.buyButton.addEventListener("click", buyAccess);
     els.refreshButton.addEventListener("click", refreshStatus);
+    els.qrButton.addEventListener("click", function () {
+      toggleQr();
+    });
     els.copyButton.addEventListener("click", function () {
       copyConfig().catch(function () {
         setToast("Не удалось скопировать конфиг");

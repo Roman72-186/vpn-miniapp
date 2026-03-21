@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>CreativeAnalytic VPN</title>
     <meta name="description" content="Миниапка для выдачи VPN-конфигов" />
-    <link rel="stylesheet" href="./styles.css?v=20260321-4" />
+    <link rel="stylesheet" href="./styles.css?v=20260321-5" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="./config.js?v=20260321-4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+    <script src="./config.js?v=20260321-5"></script>
   </head>
   <body>
     <main class="app">
@@ -92,10 +93,23 @@
         <article class="card">
           <p class="eyebrow">Конфиг</p>
           <div id="config-box" class="config-box">После оплаты здесь появится `.conf`.</div>
-          <div class="buttons top-gap">
+          <p id="config-help" class="muted top-gap">
+            После выдачи можно будет показать QR-код, скачать `.conf`, скачать `.txt` и скопировать текст.
+          </p>
+          <div class="buttons top-gap config-actions">
+            <button id="qr-button" class="button secondary" type="button" disabled>Показать QR</button>
             <button id="copy-button" class="button secondary" type="button" disabled>Скопировать</button>
-            <a id="download-link" class="button secondary disabled-link" href="#">Скачать файл</a>
+            <a id="download-link" class="button secondary disabled-link" href="#" download="creativeanalytic-vpn.conf">Скачать .conf</a>
+            <a id="download-text-link" class="button secondary disabled-link" href="#" download="creativeanalytic-vpn.txt">Скачать .txt</a>
           </div>
+          <section id="qr-section" class="qr-section hidden">
+            <div class="qr-card">
+              <canvas id="qr-canvas" width="240" height="240"></canvas>
+            </div>
+            <p id="qr-hint" class="muted">
+              QR удобен для импорта на телефон. Для компьютера обычно лучше скачать `.conf`.
+            </p>
+          </section>
           <pre id="config-preview" class="config-preview hidden"></pre>
         </article>
       </section>
@@ -103,6 +117,6 @@
       <p id="toast" class="toast"></p>
     </main>
 
-    <script src="./app.js?v=20260321-4"></script>
+    <script src="./app.js?v=20260321-5"></script>
   </body>
 </html>
