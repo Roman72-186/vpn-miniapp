@@ -6,7 +6,10 @@
     title: document.getElementById("title"),
     subtitle: document.getElementById("subtitle"),
     price: document.getElementById("price"),
+    plans: document.getElementById("plans"),
+    planHint: document.getElementById("plan-hint"),
     planTitle: document.getElementById("plan-title"),
+    planDescription: document.getElementById("plan-description"),
     userName: document.getElementById("user-name"),
     userMeta: document.getElementById("user-meta"),
     accessStatus: document.getElementById("access-status"),
@@ -23,51 +26,77 @@
 
   const state = {
     configText: "",
+    plans: [],
+    selectedPlanId: "",
     user: null
   };
 
   function setToast(text) {
-    els.toast.textContent = text;
+    els.toast.textContent = text || "";
   }
 
-  function getUserPayload() {
-    const user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user
-      ? tg.initDataUnsafe.user
-      : { id: "preview-user", first_name: "Preview", username: "preview_user" };
+  function hasTelegramContext() {
+    return Boolean(
+      tg &&
+      typeof tg.initData === "string" &&
+      tg.initData.length > 0 &&
+      tg.initDataUnsafe &&
+      tg.initDataUnsafe.user &&
+      tg.initDataUnsafe.user.id
+    );
+  }
 
-    state.user = user;
+  function normalizePlan(plan) {
+    if (!plan || !plan.planId) {
+      return null;
+    }
+
+    const amountStars = Number(plan.amountStars || 0);
+    const durationDays = Number(plan.durationDays || 0);
 
     return {
-      init_data: tg ? tg.initData || "" : "",
-      user_id: String(user.id || ""),
-      username: user.username || "",
-      first_name: user.first_name || ""
+      planId: String(plan.planId),
+      title: String(plan.title || "VPN доступ"),
+      description: String(plan.description || ""),
+      amountStars,
+      durationDays,
+      badge: String(plan.badge || (amountStars > 0 ? `${amountStars} Stars` : "Бесплатно")),
+      isFree: Boolean(plan.isFree || amountStars === 0)
     };
   }
 
-  async function postJson(url, body) {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    });
+  function getFallbackPlans() {
+    return (config.plans || []).map(normalizePlan).filter(Boolean);
+  }
 
-    const text = await response.text();
-    let data = {};
+  function getCurrentPlan() {
+    return state.plans.find(function (plan) {
+      return plan.planId === state.selectedPlanId;
+    }) || state.plans[0] || null;
+  }
 
-    if (text) {
-      try {
-        data = JSON.parse(text);
-      } catch (error) {
-        throw new Error("Сервер вернул непонятный ответ");
-      }
+  function getPriceLabel(plan) {
+    if (!plan) {
+      return "Выберите тариф";
     }
+    return plan.amountStars > 0 ? `${plan.amountStars} Stars` : "Бесплатно";
+  }
 
-    if (!response.ok) {
-      throw new Error(data.message || data.detail || "Ошибка запроса");
+  function getPurchaseLabel(plan) {
+    if (!plan) {
+      return "Выберите тариф";
     }
+    return plan.amountStars > 0 ? `Купить за ${plan.amountStars} Stars` : "Получить бесплатно";
+  }
 
-    return data;
+  function updateActionState() {
+    const plan = getCurrentPlan();
+    const telegramLocked = !hasTelegramContext();
+
+    els.copyButton.disabled = !state.configText;
+    els.refreshButton.disabled = telegramLocked;
+    els.buyButton.disabled = telegramLocked || !plan;
+    els.buyButton.textContent = telegramLocked ? "Откройте в Telegram" : getPurchaseLabel(plan);
   }
 
   function setDownloadLink(url) {
@@ -88,28 +117,32 @@
     els.configBox.textContent = boxText || "После оплаты здесь появится `.conf`.";
     els.configPreview.textContent = "";
     els.configPreview.classList.add("hidden");
-    els.copyButton.disabled = true;
     setDownloadLink("");
+    updateActionState();
   }
 
   function renderBase() {
     els.title.textContent = config.app && config.app.title ? config.app.title : "CreativeAnalytic VPN";
     els.subtitle.textContent = config.app && config.app.subtitle
       ? config.app.subtitle
-      : "Отдельная miniapp для оплаты и выдачи конфигурации.";
-    els.planTitle.textContent = config.app && config.app.planTitle ? config.app.planTitle : "VPN на 30 дней";
-    els.price.textContent = config.app && config.app.priceLabel ? config.app.priceLabel : "299 Stars";
+      : "Telegram-only miniapp для оплаты и выдачи конфигурации.";
 
     if (tg) {
       tg.ready();
       tg.expand();
     }
 
-    const payload = getUserPayload();
-    els.userName.textContent = payload.username ? `@${payload.username}` : payload.first_name || payload.user_id;
-    els.userMeta.textContent = payload.user_id
-      ? `Telegram ID: ${payload.user_id}`
-      : "Откройте miniapp в Telegram.";
+    if (!hasTelegramContext()) {
+      state.user = null;
+      els.userName.textContent = "Только через Telegram";
+      els.userMeta.textContent = "Откройте miniapp кнопкой из бота, иначе купить или получить конфиг нельзя.";
+      return;
+    }
+
+    const user = tg.initDataUnsafe.user || {};
+    state.user = user;
+    els.userName.textContent = user.username ? `@${user.username}` : user.first_name || String(user.id);
+    els.userMeta.textContent = `Telegram ID: ${user.id}`;
   }
 
   function renderDownloads(items) {
@@ -140,6 +173,132 @@
     });
   }
 
+  function selectPlan(planId) {
+    const plan = state.plans.find(function (item) {
+      return item.planId === planId;
+    });
+
+    if (!plan) {
+      return;
+    }
+
+    state.selectedPlanId = plan.planId;
+
+    Array.from(els.plans.querySelectorAll(".plan-card")).forEach(function (card) {
+      card.classList.toggle("active", card.dataset.planId === plan.planId);
+    });
+
+    els.price.textContent = getPriceLabel(plan);
+    els.planTitle.textContent = plan.title;
+    els.planDescription.textContent = plan.description;
+    els.planHint.textContent = plan.isFree
+      ? "Пробный тариф выдаётся один раз на Telegram-пользователя."
+      : `Срок доступа: ${plan.durationDays} дней.`;
+
+    updateActionState();
+  }
+
+  function renderPlans(items, defaultPlanId) {
+    const plans = (items && items.length ? items : getFallbackPlans())
+      .map(normalizePlan)
+      .filter(Boolean);
+
+    state.plans = plans;
+    els.plans.innerHTML = "";
+
+    plans.forEach(function (plan) {
+      const card = document.createElement("div");
+      card.className = "plan-card";
+      card.dataset.planId = plan.planId;
+      card.tabIndex = 0;
+
+      const titleRow = document.createElement("div");
+      titleRow.className = "plan-card-title";
+
+      const titleWrap = document.createElement("div");
+      const title = document.createElement("strong");
+      title.textContent = plan.title;
+      const description = document.createElement("p");
+      description.className = "muted";
+      description.textContent = plan.description;
+
+      const badge = document.createElement("span");
+      badge.className = `plan-badge${plan.isFree ? " free" : ""}`;
+      badge.textContent = plan.badge;
+
+      const meta = document.createElement("div");
+      meta.className = "plan-meta";
+      meta.innerHTML = `<span>${plan.durationDays} дн.</span><span>${getPriceLabel(plan)}</span>`;
+
+      titleWrap.appendChild(title);
+      titleWrap.appendChild(description);
+      titleRow.appendChild(titleWrap);
+      titleRow.appendChild(badge);
+
+      card.appendChild(titleRow);
+      card.appendChild(meta);
+
+      card.addEventListener("click", function () {
+        selectPlan(plan.planId);
+      });
+      card.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          selectPlan(plan.planId);
+        }
+      });
+
+      els.plans.appendChild(card);
+    });
+
+    const preferredPlanId = defaultPlanId || state.selectedPlanId || (config.app && config.app.defaultPlanId) || (plans[0] && plans[0].planId);
+    if (preferredPlanId) {
+      selectPlan(preferredPlanId);
+    }
+  }
+
+  function getUserPayload() {
+    if (!hasTelegramContext()) {
+      throw new Error("Miniapp работает только внутри Telegram");
+    }
+
+    const user = tg.initDataUnsafe.user || {};
+    state.user = user;
+
+    return {
+      init_data: tg.initData || "",
+      user_id: String(user.id || ""),
+      username: user.username || "",
+      first_name: user.first_name || "",
+      plan_id: state.selectedPlanId || ""
+    };
+  }
+
+  async function postJson(url, body) {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+
+    const text = await response.text();
+    let data = {};
+
+    if (text) {
+      try {
+        data = JSON.parse(text);
+      } catch (error) {
+        throw new Error("Сервер вернул непонятный ответ");
+      }
+    }
+
+    if (!response.ok) {
+      throw new Error(data.message || data.detail || "Ошибка запроса");
+    }
+
+    return data;
+  }
+
   function renderActiveAccess(data, expiresAt) {
     const ip = data.ipAddress || data.ip_address || "IP не указан";
     const configText = data.configText || data.config_text || "";
@@ -153,14 +312,13 @@
     if (configText) {
       els.configPreview.textContent = configText;
       els.configPreview.classList.remove("hidden");
-      els.copyButton.disabled = false;
     } else {
       els.configPreview.textContent = "";
       els.configPreview.classList.add("hidden");
-      els.copyButton.disabled = true;
     }
 
     setDownloadLink(configFileUrl);
+    updateActionState();
   }
 
   function renderPendingAccess(data, expiresAt) {
@@ -180,7 +338,7 @@
     const expiresAt = data.expiresAt || data.expires_at || "";
     const status = data.status || "";
 
-    if (data.isActive) {
+    if (data.isActive || data.is_active) {
       renderActiveAccess(data, expiresAt);
       return;
     }
@@ -199,6 +357,15 @@
       return;
     }
 
+    if (status === "expired") {
+      resetAccessView(
+        data.statusLabel || "Доступ истёк",
+        expiresAt ? `Срок закончился: ${expiresAt}` : "Нужна новая покупка.",
+        "Оформите новый тариф, чтобы получить новый конфиг."
+      );
+      return;
+    }
+
     resetAccessView(
       data.statusLabel || "Нет активного доступа",
       "После оплаты доступ появится здесь.",
@@ -207,49 +374,72 @@
   }
 
   async function loadCatalog() {
-    if (!config.api || !config.api.catalogUrl) {
+    if (!hasTelegramContext()) {
+      renderPlans(getFallbackPlans(), config.app && config.app.defaultPlanId);
       renderDownloads();
       return;
     }
 
-    const payload = getUserPayload();
-    const data = await postJson(config.api.catalogUrl, payload);
-
-    if (data.plan) {
-      if (data.plan.title) {
-        els.planTitle.textContent = data.plan.title;
-      }
-      if (data.plan.amountStars) {
-        els.price.textContent = `${data.plan.amountStars} Stars`;
-      }
+    if (!config.api || !config.api.catalogUrl) {
+      renderPlans(getFallbackPlans(), config.app && config.app.defaultPlanId);
+      renderDownloads();
+      return;
     }
 
+    const data = await postJson(config.api.catalogUrl, getUserPayload());
+    const plans = data.plans || (data.plan ? [data.plan] : []);
+
+    renderPlans(plans, data.defaultPlanId);
     renderDownloads(data.downloads);
   }
 
   async function loadStatus() {
+    if (!hasTelegramContext()) {
+      resetAccessView(
+        "Открывайте miniapp через Telegram",
+        "Без Telegram initData получить счёт или конфиг нельзя.",
+        "Откройте miniapp кнопкой из бота."
+      );
+      return;
+    }
+
     if (!config.api || !config.api.statusUrl) {
       renderAccess(null);
       return;
     }
 
-    const payload = getUserPayload();
-    const data = await postJson(config.api.statusUrl, payload);
+    const data = await postJson(config.api.statusUrl, getUserPayload());
     renderAccess(data.access || data);
   }
 
   async function buyAccess() {
+    if (!hasTelegramContext()) {
+      setToast("Эта miniapp работает только внутри Telegram.");
+      return;
+    }
+
     if (!config.api || !config.api.createInvoiceUrl) {
-      setToast("Сначала заполните createInvoiceUrl в config.js");
+      setToast("createInvoiceUrl не настроен");
+      return;
+    }
+
+    const plan = getCurrentPlan();
+    if (!plan) {
+      setToast("Сначала выберите тариф");
       return;
     }
 
     els.buyButton.disabled = true;
-    els.buyButton.textContent = "Готовим оплату...";
+    els.buyButton.textContent = plan.isFree ? "Выдаём доступ..." : "Готовим оплату...";
 
     try {
-      const payload = getUserPayload();
-      const data = await postJson(config.api.createInvoiceUrl, payload);
+      const data = await postJson(config.api.createInvoiceUrl, getUserPayload());
+
+      if (data.access) {
+        renderAccess(data.access);
+        setToast(data.message || "Доступ готов");
+        return;
+      }
 
       if (tg && typeof tg.openInvoice === "function" && (data.invoiceSlug || data.invoiceUrl)) {
         tg.openInvoice(data.invoiceSlug || data.invoiceUrl, function (status) {
@@ -258,20 +448,28 @@
             loadStatus().catch(function () {});
           }
         });
-      } else if (data.invoiceUrl) {
-        window.open(data.invoiceUrl, "_blank", "noopener,noreferrer");
-      } else {
-        throw new Error("n8n не вернул ссылку на оплату");
+        return;
       }
+
+      if (data.invoiceUrl) {
+        window.open(data.invoiceUrl, "_blank", "noopener,noreferrer");
+        return;
+      }
+
+      throw new Error("Сервис не вернул ссылку на оплату или готовый доступ");
     } catch (error) {
-      setToast(error.message || "Не удалось создать оплату");
+      setToast(error.message || "Не удалось создать доступ");
     } finally {
-      els.buyButton.disabled = false;
-      els.buyButton.textContent = "Купить";
+      updateActionState();
     }
   }
 
   async function refreshStatus() {
+    if (!hasTelegramContext()) {
+      setToast("Откройте miniapp через Telegram.");
+      return;
+    }
+
     els.refreshButton.disabled = true;
     els.refreshButton.textContent = "Проверяем...";
 
@@ -281,8 +479,8 @@
     } catch (error) {
       setToast(error.message || "Не удалось обновить статус");
     } finally {
-      els.refreshButton.disabled = false;
       els.refreshButton.textContent = "Обновить статус";
+      updateActionState();
     }
   }
 
@@ -297,6 +495,7 @@
 
   async function bootstrap() {
     renderBase();
+    renderPlans(getFallbackPlans(), config.app && config.app.defaultPlanId);
     renderDownloads();
     renderAccess(null);
 
@@ -308,16 +507,26 @@
       });
     });
 
+    if (!hasTelegramContext()) {
+      resetAccessView(
+        "Открывайте miniapp через Telegram",
+        "Без Telegram initData оплатить или получить конфиг нельзя.",
+        "Откройте miniapp кнопкой из бота, чтобы тарифы стали активными."
+      );
+      setToast("Публичную ссылку можно открыть, но рабочий сценарий доступен только из Telegram.");
+      return;
+    }
+
     try {
       await loadCatalog();
     } catch (error) {
-      setToast("Каталог пока не подключён к n8n");
+      setToast(error.message || "Каталог пока не подключён");
     }
 
     try {
       await loadStatus();
     } catch (error) {
-      setToast("Статус пока не подключён к n8n");
+      setToast(error.message || "Статус пока не подключён");
     }
   }
 
