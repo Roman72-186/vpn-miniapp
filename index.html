@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>CreativeAnalytic VPN</title>
+    <meta name="description" content="Миниапка для выдачи VPN-конфигов" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="./config.js"></script>
+  </head>
+  <body>
+    <main class="app">
+      <section class="hero card">
+        <div>
+          <p class="eyebrow">VPN Mini App</p>
+          <h1 id="title">CreativeAnalytic VPN</h1>
+          <p id="subtitle" class="muted">
+            Отдельная miniapp для оплаты и выдачи конфигурации.
+          </p>
+        </div>
+        <div class="price-box">
+          <span>Тариф</span>
+          <strong id="price">299 Stars</strong>
+        </div>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <p class="eyebrow">Пользователь</p>
+          <strong id="user-name">Не определён</strong>
+          <p id="user-meta" class="muted">Откройте miniapp внутри Telegram.</p>
+        </article>
+
+        <article class="card">
+          <p class="eyebrow">Доступ</p>
+          <strong id="access-status">Нет активного доступа</strong>
+          <p id="access-meta" class="muted">После оплаты статус появится здесь.</p>
+        </article>
+      </section>
+
+      <section class="card actions">
+        <div>
+          <p class="eyebrow">Покупка</p>
+          <h2 id="plan-title">VPN на 30 дней</h2>
+        </div>
+
+        <div class="buttons">
+          <button id="buy-button" class="button primary" type="button">Купить</button>
+          <button id="refresh-button" class="button secondary" type="button">Обновить статус</button>
+        </div>
+      </section>
+
+      <section class="grid wide">
+        <article class="card">
+          <p class="eyebrow">Скачать</p>
+          <div id="downloads" class="download-list"></div>
+        </article>
+
+        <article class="card">
+          <p class="eyebrow">Конфиг</p>
+          <div id="config-box" class="config-box">После оплаты здесь появится `.conf`.</div>
+          <div class="buttons top-gap">
+            <button id="copy-button" class="button secondary" type="button" disabled>Скопировать</button>
+            <a id="download-link" class="button secondary disabled-link" href="#">Скачать файл</a>
+          </div>
+          <pre id="config-preview" class="config-preview hidden"></pre>
+        </article>
+      </section>
+
+      <p id="toast" class="toast"></p>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
