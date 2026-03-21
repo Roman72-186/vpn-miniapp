@@ -19,6 +19,7 @@ html,
 body {
   margin: 0;
   min-height: 100%;
+  overflow-x: hidden;
   background:
     radial-gradient(circle at top left, rgba(56, 211, 159, 0.18), transparent 24%),
     radial-gradient(circle at top right, rgba(255, 160, 67, 0.14), transparent 22%),
@@ -45,7 +46,7 @@ body {
 }
 
 .hidden-section {
-  display: none;
+  display: none !important;
 }
 
 .hero,
