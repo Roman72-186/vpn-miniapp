@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
   const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   const config = window.VPN_APP_CONFIG || {};
 
