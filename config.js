@@ -1,4 +1,4 @@
-window.VPN_APP_CONFIG = {
+﻿window.VPN_APP_CONFIG = {
   app: {
     title: "CreativeAnalytic VPN",
     subtitle: "Telegram-only miniapp для выдачи VPN-конфигов через отдельный сервер.",
