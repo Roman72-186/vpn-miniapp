@@ -1,14 +1,14 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>CreativeAnalytic VPN</title>
     <meta name="description" content="VPN mini app" />
-    <link rel="stylesheet" href="./styles.css?v=20260321-6" />
+    <link rel="stylesheet" href="./styles.css?v=20260322-1" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
-    <script src="./config.js?v=20260321-6"></script>
+    <script src="./config.js?v=20260322-1"></script>
   </head>
   <body>
     <main class="app">
@@ -16,35 +16,35 @@
         <div>
           <p class="eyebrow">VPN Mini App</p>
           <h1 id="title">CreativeAnalytic VPN</h1>
-          <p id="subtitle" class="muted">A separate mini app for payment and config delivery.</p>
+          <p id="subtitle" class="muted">Telegram-only miniapp для выдачи VPN-конфигов.</p>
         </div>
         <div class="price-box">
-          <span>Selected Plan</span>
+          <span>Выбранный план</span>
           <strong id="price">299 Stars</strong>
         </div>
       </section>
 
       <section class="grid">
         <article class="card">
-          <p class="eyebrow">User</p>
-          <strong id="user-name">Unknown</strong>
-          <p id="user-meta" class="muted">Open the mini app inside Telegram.</p>
+          <p class="eyebrow">Пользователь</p>
+          <strong id="user-name">Неизвестно</strong>
+          <p id="user-meta" class="muted">Откройте miniapp внутри Telegram.</p>
         </article>
 
         <article class="card">
-          <p class="eyebrow">Access</p>
-          <strong id="access-status">No active access</strong>
-          <p id="access-meta" class="muted">Your status will appear here after payment.</p>
+          <p class="eyebrow">Доступ</p>
+          <strong id="access-status">Нет активного доступа</strong>
+          <p id="access-meta" class="muted">Статус появится здесь после оплаты.</p>
         </article>
       </section>
 
       <section id="plans-section" class="card">
         <div class="section-head">
           <div>
-            <p class="eyebrow">Plans</p>
-            <h2>Choose Access</h2>
+            <p class="eyebrow">Тарифы</p>
+            <h2>Выберите доступ</h2>
           </div>
-          <p id="plan-hint" class="muted">3 days for trial, 7 and 30 days for paid plans.</p>
+          <p id="plan-hint" class="muted">3 дня — пробный, 7 и 30 дней — платные планы.</p>
         </div>
         <div id="plans" class="plan-list"></div>
       </section>
@@ -52,49 +52,49 @@
       <section id="platforms-section" class="card">
         <div class="section-head">
           <div>
-            <p class="eyebrow">Device</p>
-            <h2>Where Will You Install It?</h2>
+            <p class="eyebrow">Устройство</p>
+            <h2>Куда установить?</h2>
           </div>
-          <p id="platform-hint" class="muted">Pick a device first so we can leave only the correct install link and steps.</p>
+          <p id="platform-hint" class="muted">Выберите устройство, чтобы мы показали нужную ссылку и шаги установки.</p>
         </div>
         <div id="platforms" class="platform-list"></div>
       </section>
 
       <section id="actions-section" class="card actions">
         <div>
-          <p class="eyebrow">Checkout</p>
-          <h2 id="plan-title">VPN For 30 Days</h2>
-          <p id="plan-description" class="muted">Plan details will appear here after selection.</p>
-          <p id="target-summary" class="muted target-summary">Pick a device before purchase.</p>
+          <p class="eyebrow">Оформление</p>
+          <h2 id="plan-title">VPN на 30 дней</h2>
+          <p id="plan-description" class="muted">Детали плана появятся после выбора.</p>
+          <p id="target-summary" class="muted target-summary">Сначала выберите устройство.</p>
         </div>
 
         <div class="buttons">
-          <button id="buy-button" class="button primary" type="button">Buy</button>
-          <button id="refresh-button" class="button secondary" type="button">Refresh Status</button>
+          <button id="buy-button" class="button primary" type="button">Купить</button>
+          <button id="refresh-button" class="button secondary" type="button">Обновить статус</button>
         </div>
       </section>
 
       <section class="grid wide">
         <article class="card">
-          <p class="eyebrow">Downloads</p>
+          <p class="eyebrow">Загрузки</p>
           <div id="downloads" class="download-list"></div>
         </article>
 
         <article class="card">
-          <p class="eyebrow">Config</p>
-          <div id="config-box" class="config-box">Your .conf file will appear here after payment.</div>
-          <p id="config-help" class="muted top-gap">Once the config is issued, you can show QR, download .conf, download .txt, or copy the text.</p>
+          <p class="eyebrow">Конфигурация</p>
+          <div id="config-box" class="config-box">Ваш .conf файл появится здесь после оплаты.</div>
+          <p id="config-help" class="muted top-gap">После выдачи можно открыть QR, скачать .conf, .txt или скопировать текст.</p>
           <div class="buttons top-gap config-actions">
-            <button id="qr-button" class="button secondary" type="button" disabled>Show QR</button>
-            <button id="copy-button" class="button secondary" type="button" disabled>Copy</button>
-            <a id="download-link" class="button secondary disabled-link" href="#" download="creativeanalytic-vpn.conf">Download .conf</a>
-            <a id="download-text-link" class="button secondary disabled-link" href="#" download="creativeanalytic-vpn.txt">Download .txt</a>
+            <button id="qr-button" class="button secondary" type="button" disabled>Показать QR</button>
+            <button id="copy-button" class="button secondary" type="button" disabled>Скопировать</button>
+            <a id="download-link" class="button secondary disabled-link" href="#" download="creativeanalytic-vpn.conf">Скачать .conf</a>
+            <a id="download-text-link" class="button secondary disabled-link" href="#" download="creativeanalytic-vpn.txt">Скачать .txt</a>
           </div>
           <section id="qr-section" class="qr-section hidden">
             <div class="qr-card">
               <canvas id="qr-canvas" width="240" height="240"></canvas>
             </div>
-            <p id="qr-hint" class="muted">QR is useful for import on another device.</p>
+            <p id="qr-hint" class="muted">QR удобно использовать для импорта на другом устройстве.</p>
           </section>
           <pre id="config-preview" class="config-preview hidden"></pre>
         </article>
@@ -103,21 +103,21 @@
       <section class="card">
         <div class="section-head">
           <div>
-            <p class="eyebrow">Import</p>
-            <h2 id="instruction-title">How To Connect</h2>
+            <p class="eyebrow">Импорт</p>
+            <h2 id="instruction-title">Как подключить</h2>
           </div>
-          <p id="instruction-badge" class="muted">Choose a device above and we will show install and import steps.</p>
+          <p id="instruction-badge" class="muted">Выберите устройство выше — здесь появятся шаги установки и импорта.</p>
         </div>
-        <div id="instruction-empty" class="instruction-empty">Select a platform first. We will leave only the needed install link and import steps here.</div>
+        <div id="instruction-empty" class="instruction-empty">Сначала выберите платформу — мы оставим только нужную ссылку и шаги импорта.</div>
         <article id="instruction-card" class="instruction-card hidden">
           <div class="instruction-header">
             <strong id="instruction-platform">Windows</strong>
-            <span id="instruction-state" class="instruction-chip">Waiting For Config</span>
+            <span id="instruction-state" class="instruction-chip">Ждём конфиг</span>
           </div>
-          <p id="instruction-summary" class="muted">Install the app first, then come back here for the config.</p>
+          <p id="instruction-summary" class="muted">Сначала установите приложение, затем вернитесь сюда за конфигом.</p>
           <ol id="instruction-steps" class="instruction-steps"></ol>
           <div class="buttons top-gap">
-            <a id="instruction-link" class="button secondary disabled-link" href="#" target="_blank" rel="noreferrer">Open Install Guide</a>
+            <a id="instruction-link" class="button secondary disabled-link" href="#" target="_blank" rel="noreferrer">Открыть инструкцию</a>
           </div>
         </article>
       </section>
@@ -130,14 +130,14 @@
       <div class="qr-modal-panel">
         <button id="qr-modal-close" class="qr-close" type="button" aria-label="Close QR">x</button>
         <p class="eyebrow">QR</p>
-        <h2 id="qr-modal-title">Full Screen QR</h2>
-        <p id="qr-modal-hint" class="muted">Open the QR on another device or use the .conf / .txt download buttons.</p>
+        <h2 id="qr-modal-title">QR на весь экран</h2>
+        <p id="qr-modal-hint" class="muted">Откройте QR на другом устройстве или скачайте .conf / .txt.</p>
         <div class="qr-modal-card">
           <canvas id="qr-modal-canvas" width="320" height="320"></canvas>
         </div>
       </div>
     </div>
 
-    <script src="./app.js?v=20260321-6"></script>
+    <script src="./app.js?v=20260322-1"></script>
   </body>
 </html>
