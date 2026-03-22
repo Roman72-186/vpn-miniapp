@@ -1,0 +1,21 @@
+{
+  "disabledMcpjsonServers": [
+    "n8n-mcp",
+    "context7",
+    "ssh",
+    "filesystem",
+    "docker",
+    "postgres-n8n",
+    "postgres-agromarket",
+    "postgres-ocr",
+    "redis",
+    "brave-search",
+    "fetch",
+    "puppeteer",
+    "telegram",
+    "github",
+    "google-drive",
+    "memory",
+    "sequential-thinking"
+  ]
+}
