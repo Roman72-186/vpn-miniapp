@@ -116,7 +116,8 @@
     noPlan: "Выберите тариф",
     noPlatform: "Выберите устройство",
     platformSelected: (title) => `Выбрано: ${title}. Остальные устройства скрыты, ниже оставили только нужную установку.`,
-    platformFixed: (title) => `Устройство зафиксировано: ${title}.`,
+    platformFixed: (title) => `Устройство: ${title}. Нажмите на другую карточку, чтобы сменить.`,
+    changePlatform: "Сменить устройство",
     selectPlatformToInstall: "Перед оформлением выберите устройство, чтобы мы показали нужную ссылку и шаги установки.",
     platformsLoading: "Список устройств появится после загрузки каталога.",
     configReady: "Конфиг готов: можно импортировать",
@@ -379,6 +380,7 @@
     qrModalHint: document.getElementById("qr-modal-hint"),
     qrModalTitle: document.getElementById("qr-modal-title"),
     qrModalClose: document.getElementById("qr-modal-close"),
+    changePlatform: document.getElementById("change-platform"),
     toast: document.getElementById("toast")
   };
 
@@ -517,9 +519,7 @@
   }
 
   function getVisiblePlatforms() {
-    const platforms = state.platforms.length ? state.platforms : getFallbackPlatforms();
-    const selected = getCurrentPlatform();
-    return selected ? [selected] : platforms;
+    return state.platforms.length ? state.platforms : getFallbackPlatforms();
   }
 
   function hasLockedAccess() {
@@ -840,8 +840,9 @@
     const hasPlatformChoices = getVisiblePlatforms().length > 0;
 
     els.plansSection.classList.toggle("hidden-section", purchaseLocked || !hasPlanChoices);
-    els.platformsSection.classList.toggle("hidden-section", purchaseLocked || !hasPlatformChoices);
+    els.platformsSection.classList.toggle("hidden-section", !hasPlatformChoices);
     els.actionsSection.classList.toggle("hidden-section", purchaseLocked);
+    els.changePlatform.classList.toggle("hidden", !purchaseLocked || !state.selectedPlatformId);
   }
 
   function resetAccessView(message, meta, boxText) {
@@ -930,9 +931,13 @@
 
     state.selectedPlatformId = platform.id;
     state.platformRestored = false;
-    els.platformHint.textContent = TEXTS.platformSelected(platform.title);
+    savePlatformId(platform.id);
+    els.platformHint.textContent = TEXTS.platformFixed(platform.title);
     renderPlatforms(state.platforms);
     renderDownloads(state.platforms);
+    if (state.configText) {
+      setGeneratedDownloads(state.configText);
+    }
     updateActionState();
   }
 
@@ -943,16 +948,11 @@
     const hasSavedPlatform = state.selectedPlatformId && platforms.some(function (item) {
       return item.id === state.selectedPlatformId;
     });
-    const visiblePlatforms = hasSavedPlatform
-      ? platforms.filter(function (item) {
-          return item.id === state.selectedPlatformId;
-        })
-      : platforms;
 
     state.platforms = platforms;
     els.platforms.textContent = "";
 
-    visiblePlatforms.forEach(function (platform) {
+    platforms.forEach(function (platform) {
       const card = document.createElement("div");
       card.className = `platform-card${platform.id === state.selectedPlatformId ? " active" : ""}`;
       card.dataset.platformId = platform.id;
@@ -995,7 +995,7 @@
 
     els.platformHint.textContent = hasSavedPlatform
       ? TEXTS.platformFixed(getCurrentPlatform().title)
-      : visiblePlatforms.length
+      : platforms.length
       ? TEXTS.selectPlatformToInstall
       : TEXTS.platformsLoading;
 
@@ -1548,6 +1548,11 @@
       copyConfig().catch(function () {
         setToast(TEXTS.configCopyFailed);
       });
+    });
+    els.changePlatform.addEventListener("click", function (event) {
+      event.preventDefault();
+      els.platformsSection.classList.remove("hidden-section");
+      els.platformsSection.scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
     if (!hasTelegramContext()) {

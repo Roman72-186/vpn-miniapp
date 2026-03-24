@@ -511,6 +511,22 @@ body.modal-open {
   overflow: hidden;
 }
 
+.change-platform {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--accent);
+  text-decoration: none;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 160ms ease;
+}
+
+.change-platform:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
 .hidden {
   display: none !important;
 }
