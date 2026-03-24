@@ -159,6 +159,8 @@ h1 {
   display: grid;
   gap: 10px;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
   min-width: 0;
   overflow: hidden;

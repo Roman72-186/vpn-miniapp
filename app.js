@@ -892,8 +892,7 @@
       .map(normalizePlatform)
       .filter(Boolean);
 
-    state.platforms = list;
-    const visiblePlatforms = getVisiblePlatforms().length ? getVisiblePlatforms() : list;
+    const visiblePlatforms = list.length ? list : getVisiblePlatforms();
     els.downloads.textContent = "";
 
     visiblePlatforms.forEach(function (item) {
@@ -921,7 +920,7 @@
   }
 
   function selectPlatform(platformId) {
-    const platform = state.platforms.find(function (item) {
+    var platform = state.platforms.find(function (item) {
       return item.id === platformId;
     });
 
@@ -932,12 +931,28 @@
     state.selectedPlatformId = platform.id;
     state.platformRestored = false;
     savePlatformId(platform.id);
+
+    // Update all platform cards in-place (toggle active class and CTA label)
+    // without rebuilding the DOM — keeps click handlers alive.
+    Array.from(els.platforms.querySelectorAll(".platform-card")).forEach(function (card) {
+      var isSelected = card.dataset.platformId === platform.id;
+      card.classList.toggle("active", isSelected);
+      var cta = card.querySelector(".platform-cta");
+      if (cta) {
+        cta.textContent = isSelected ? "Выбрано" : "Выбрать";
+      }
+    });
+
     els.platformHint.textContent = TEXTS.platformFixed(platform.title);
-    renderPlatforms(state.platforms);
+
+    // Ensure platforms section is always visible after selection
+    els.platformsSection.classList.remove("hidden-section");
+
     renderDownloads(state.platforms);
     if (state.configText) {
       setGeneratedDownloads(state.configText);
     }
+    applyUiState();
     updateActionState();
   }
 
