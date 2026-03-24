@@ -23,18 +23,18 @@
       planId: "vpn_7d",
       title: "VPN на 7 дней",
       description: "Короткий платный доступ на неделю.",
-      amountStars: 70,
+      amountStars: 30,
       durationDays: 7,
-      badge: "70 Stars",
+      badge: "30 Stars",
       isFree: false
     },
     {
       planId: "vpn_30d",
       title: "VPN на 30 дней",
       description: "Основной месячный доступ через отдельный VPN-сервер.",
-      amountStars: 299,
+      amountStars: 100,
       durationDays: 30,
-      badge: "299 Stars",
+      badge: "100 Stars",
       isFree: false
     }
   ],

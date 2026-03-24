@@ -145,6 +145,10 @@ h1 {
   gap: 10px;
   cursor: pointer;
   transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+  min-width: 0;
+  overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .platform-card {
@@ -155,7 +159,13 @@ h1 {
   display: grid;
   gap: 10px;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+  min-width: 0;
+  overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .plan-card:hover {
@@ -183,6 +193,7 @@ h1 {
   justify-content: space-between;
   gap: 12px;
   align-items: flex-start;
+  min-width: 0;
 }
 
 .plan-badge {
@@ -203,8 +214,19 @@ h1 {
   color: #7ef0c8;
 }
 
+.plan-card strong,
+.platform-card strong {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
 .plan-card strong {
   font-size: 18px;
+}
+
+#plan-description {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .platform-card strong {
@@ -217,6 +239,8 @@ h1 {
   gap: 12px;
   color: var(--muted);
   font-size: 13px;
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .platform-meta {
@@ -225,6 +249,8 @@ h1 {
   gap: 12px;
   color: var(--muted);
   font-size: 13px;
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .platform-cta {
@@ -487,6 +513,22 @@ body.modal-open {
   overflow: hidden;
 }
 
+.change-platform {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--accent);
+  text-decoration: none;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 160ms ease;
+}
+
+.change-platform:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
 .hidden {
   display: none !important;
 }
@@ -590,5 +632,23 @@ body.modal-open {
 
   .qr-modal-card {
     padding: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .plan-card,
+  .platform-card {
+    padding: 12px;
+  }
+
+  .plan-card strong,
+  .platform-card strong {
+    font-size: 16px;
+  }
+
+  .plan-badge,
+  .platform-cta {
+    font-size: 11px;
+    padding: 4px 8px;
   }
 }
