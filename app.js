@@ -1334,11 +1334,11 @@
         savePlatformId(state.selectedPlatformId);
       }
     } else {
-      savePlatformId("");
       if (state.platformRestored) {
+        savePlatformId("");
         state.selectedPlatformId = "";
+        state.platformRestored = false;
       }
-      state.platformRestored = false;
     }
 
     renderPlans(state.plans.length ? state.plans : getFallbackPlans(), state.selectedPlanId || (config.app && config.app.defaultPlanId));
