@@ -394,7 +394,8 @@
     platformRestored: false,
     qrVisible: false,
     confDownloadUrl: "",
-    textDownloadUrl: ""
+    textDownloadUrl: "",
+    purchasing: false
   };
 
   const IMPORT_GUIDES = TEXTS;
@@ -441,6 +442,26 @@
     } catch (error) {
       // Ignore storage failures inside Telegram WebView.
     }
+  }
+
+  function cacheConfig(userId, configText) {
+    try {
+      localStorage.setItem("vpn-miniapp-config:" + userId, configText);
+    } catch (e) {}
+  }
+
+  function loadCachedConfig(userId) {
+    try {
+      return localStorage.getItem("vpn-miniapp-config:" + userId) || "";
+    } catch (e) {
+      return "";
+    }
+  }
+
+  function clearCachedConfig(userId) {
+    try {
+      localStorage.removeItem("vpn-miniapp-config:" + userId);
+    } catch (e) {}
   }
 
   function normalizePlan(plan) {
@@ -612,6 +633,11 @@
       return;
     }
 
+    if (state.configText.length > 2000) {
+      setToast("Конфиг слишком большой для QR-кода. Используйте файл .conf");
+      return;
+    }
+
     window.QRCode.toCanvas(
       canvas,
       state.configText,
@@ -738,7 +764,7 @@
     els.instructionPlatform.textContent = platform.title;
     els.instructionState.textContent = accessState;
     els.instructionSummary.textContent = summary;
-    els.instructionSteps.innerHTML = "";
+    els.instructionSteps.textContent = "";
 
     steps.forEach(function (stepText) {
       const item = document.createElement("li");
@@ -867,7 +893,7 @@
 
     state.platforms = list;
     const visiblePlatforms = getVisiblePlatforms().length ? getVisiblePlatforms() : list;
-    els.downloads.innerHTML = "";
+    els.downloads.textContent = "";
 
     visiblePlatforms.forEach(function (item) {
       const card = document.createElement("div");
@@ -924,7 +950,7 @@
       : platforms;
 
     state.platforms = platforms;
-    els.platforms.innerHTML = "";
+    els.platforms.textContent = "";
 
     visiblePlatforms.forEach(function (platform) {
       const card = document.createElement("div");
@@ -941,7 +967,14 @@
 
       const meta = document.createElement("div");
       meta.className = "platform-meta";
-      meta.innerHTML = `<span>${platform.url ? "Есть ссылка" : "Ссылка скоро"}</span><span class="platform-cta">${platform.id === state.selectedPlatformId ? "Выбрано" : "Выбрать"}</span>`;
+      meta.textContent = "";
+      var linkSpan = document.createElement("span");
+      linkSpan.textContent = platform.url ? "Есть ссылка" : "Ссылка скоро";
+      meta.appendChild(linkSpan);
+      var ctaSpan = document.createElement("span");
+      ctaSpan.className = "platform-cta";
+      ctaSpan.textContent = platform.id === state.selectedPlatformId ? "Выбрано" : "Выбрать";
+      meta.appendChild(ctaSpan);
 
       card.appendChild(title);
       card.appendChild(description);
@@ -1004,7 +1037,7 @@
       });
 
     state.plans = plans;
-    els.plans.innerHTML = "";
+    els.plans.textContent = "";
     els.planHint.textContent = state.trialUsed
       ? TEXTS.trialUsed
       : TEXTS.planHint;
@@ -1031,7 +1064,13 @@
 
       const meta = document.createElement("div");
       meta.className = "plan-meta";
-      meta.innerHTML = `<span>${plan.durationDays} дн.</span><span>${getPriceLabel(plan)}</span>`;
+      meta.textContent = "";
+      var durationSpan = document.createElement("span");
+      durationSpan.textContent = plan.durationDays + " дн.";
+      meta.appendChild(durationSpan);
+      var priceSpan = document.createElement("span");
+      priceSpan.textContent = getPriceLabel(plan);
+      meta.appendChild(priceSpan);
 
       titleWrap.appendChild(title);
       titleWrap.appendChild(description);
@@ -1092,28 +1131,41 @@
   }
 
   async function postJson(url, body) {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    });
+    var controller = new AbortController();
+    var timeout = setTimeout(function () { controller.abort(); }, 15000);
 
-    const text = await response.text();
-    let data = {};
+    try {
+      var response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: controller.signal
+      });
 
-    if (text) {
-      try {
-        data = JSON.parse(text);
-      } catch (error) {
-        throw new Error("Сервер вернул непонятный ответ");
+      var text = await response.text();
+      var data = {};
+
+      if (text) {
+        try {
+          data = JSON.parse(text);
+        } catch (error) {
+          throw new Error("Сервер вернул непонятный ответ");
+        }
       }
-    }
 
-    if (!response.ok) {
-      throw new Error(data.message || data.detail || "Ошибка запроса");
-    }
+      if (!response.ok) {
+        throw new Error(data.message || data.detail || "Ошибка запроса");
+      }
 
-    return data;
+      return data;
+    } catch (e) {
+      if (e.name === "AbortError") {
+        throw new Error("Сервер не отвечает, попробуйте позже");
+      }
+      throw e;
+    } finally {
+      clearTimeout(timeout);
+    }
   }
 
   function renderActiveAccess(data, expiresAt) {
@@ -1123,11 +1175,36 @@
     const platform = getCurrentPlatform();
 
     state.configText = configText;
+    if (configText && state.user && state.user.id) {
+      cacheConfig(state.user.id, configText);
+    }
     els.accessStatus.textContent = TEXTS.accessActive;
     els.accessMeta.textContent = expiresAt
       ? TEXTS.accessExpires(expiresAt, platform ? platform.title : "")
       : TEXTS.accessConfirmed(platform ? platform.title : "");
-    els.configBox.innerHTML = `<strong>IP:</strong> ${ip}<br><strong>Срок:</strong> ${expiresAt || "не указан"}${platform ? `<br><strong>Устройство:</strong> ${platform.title}` : ""}`;
+    els.configBox.textContent = "";
+    var ipLine = document.createElement("div");
+    var ipLabel = document.createElement("strong");
+    ipLabel.textContent = "IP: ";
+    ipLine.appendChild(ipLabel);
+    ipLine.appendChild(document.createTextNode(ip));
+    els.configBox.appendChild(ipLine);
+
+    var expiryLine = document.createElement("div");
+    var expiryLabel = document.createElement("strong");
+    expiryLabel.textContent = "Срок: ";
+    expiryLine.appendChild(expiryLabel);
+    expiryLine.appendChild(document.createTextNode(expiresAt || "не указан"));
+    els.configBox.appendChild(expiryLine);
+
+    if (platform) {
+      var platformLine = document.createElement("div");
+      var platformLabel = document.createElement("strong");
+      platformLabel.textContent = "Устройство: ";
+      platformLine.appendChild(platformLabel);
+      platformLine.appendChild(document.createTextNode(platform.title));
+      els.configBox.appendChild(platformLine);
+    }
 
     if (configText) {
       els.configPreview.textContent = configText;
@@ -1174,6 +1251,11 @@
     if (data.isActive || data.is_active) {
       renderActiveAccess(data, expiresAt);
       return;
+    }
+
+    // Access is not active — clear cached config
+    if (state.user && state.user.id) {
+      clearCachedConfig(state.user.id);
     }
 
     if (status === "awaiting_issue") {
@@ -1266,35 +1348,38 @@
   }
 
   async function buyAccess() {
-    if (!hasTelegramContext()) {
-      setToast(TEXTS.telegramOnly);
-      return;
-    }
-
-    if (!config.api || !config.api.createInvoiceUrl) {
-      setToast(TEXTS.noInvoiceUrl);
-      return;
-    }
-
-    const plan = getCurrentPlan();
-    if (!plan) {
-      setToast(TEXTS.selectPlan);
-      return;
-    }
-
-    const platform = getCurrentPlatform();
-    if (!platform) {
-      setToast(TEXTS.selectPlatform);
-      return;
-    }
-
-    savePlatformId(platform.id);
-    state.platformRestored = false;
-
+    if (state.purchasing) return;
+    state.purchasing = true;
     els.buyButton.disabled = true;
-    els.buyButton.textContent = plan.isFree ? TEXTS.issuingAccess : TEXTS.paymentPreparing;
 
     try {
+      if (!hasTelegramContext()) {
+        setToast(TEXTS.telegramOnly);
+        return;
+      }
+
+      if (!config.api || !config.api.createInvoiceUrl) {
+        setToast(TEXTS.noInvoiceUrl);
+        return;
+      }
+
+      const plan = getCurrentPlan();
+      if (!plan) {
+        setToast(TEXTS.selectPlan);
+        return;
+      }
+
+      const platform = getCurrentPlatform();
+      if (!platform) {
+        setToast(TEXTS.selectPlatform);
+        return;
+      }
+
+      savePlatformId(platform.id);
+      state.platformRestored = false;
+
+      els.buyButton.textContent = plan.isFree ? TEXTS.issuingAccess : TEXTS.paymentPreparing;
+
       const data = await postJson(config.api.createInvoiceUrl, getUserPayload());
 
       if (data.access) {
@@ -1303,18 +1388,49 @@
         return;
       }
 
-      if (tg && typeof tg.openInvoice === "function" && (data.invoiceSlug || data.invoiceUrl)) {
-        tg.openInvoice(data.invoiceSlug || data.invoiceUrl, function (status) {
-          setToast(`Статус оплаты: ${status}`);
+      var slug = data.invoiceSlug || "";
+      if (!slug && data.invoiceUrl) {
+        var match = data.invoiceUrl.match(/\$([a-zA-Z0-9_-]+)/);
+        slug = match ? match[1] : "";
+      }
+
+      if (tg && typeof tg.openInvoice === "function" && slug) {
+        tg.openInvoice(slug, function (status) {
           if (status === "paid") {
-            loadStatus().catch(function () {});
+            setToast("Оплата прошла, загружаем конфиг...");
+            var retries = 0;
+            var maxRetries = 5;
+            function pollStatus() {
+              loadStatus().catch(function () {
+                retries++;
+                if (retries < maxRetries) {
+                  setTimeout(pollStatus, 3000 * retries);
+                } else {
+                  setToast("Оплата получена, нажмите «Обновить статус» через минуту");
+                  updateActionState();
+                }
+              });
+            }
+            pollStatus();
+          } else if (status === "pending") {
+            setToast("Оплата обрабатывается, нажмите «Обновить статус» через минуту");
+            updateActionState();
+          } else if (status === "failed") {
+            setToast("Оплата не прошла, попробуйте ещё раз");
+            updateActionState();
+          } else if (status === "cancelled") {
+            setToast("Оплата отменена");
+            updateActionState();
+          } else {
+            setToast("Статус оплаты: " + (status || "неизвестен"));
+            updateActionState();
           }
         });
         return;
       }
 
       if (data.invoiceUrl) {
-        window.open(data.invoiceUrl, "_blank", "noopener,noreferrer");
+        window.location.href = data.invoiceUrl;
         return;
       }
 
@@ -1322,6 +1438,7 @@
     } catch (error) {
       setToast(error.message || "Не удалось создать доступ");
     } finally {
+      state.purchasing = false;
       updateActionState();
     }
   }
@@ -1347,30 +1464,50 @@
   }
 
   async function copyConfig() {
-    if (!state.configText) {
-      return;
+    if (!state.configText) return;
+
+    // Try modern API first
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(state.configText);
+        setToast(TEXTS.configCopied);
+        return;
+      }
+    } catch (e) {
+      // Fall through to execCommand fallback
     }
 
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(state.configText);
-      setToast(TEXTS.configCopied);
-      return;
-    }
-
-    const textarea = document.createElement("textarea");
+    // execCommand fallback
+    var textarea = document.createElement("textarea");
     textarea.value = state.configText;
-    textarea.setAttribute("readonly", "readonly");
-    textarea.style.position = "absolute";
+    textarea.style.position = "fixed";
     textarea.style.left = "-9999px";
     document.body.appendChild(textarea);
     textarea.select();
-    document.execCommand("copy");
-    document.body.removeChild(textarea);
-    setToast(TEXTS.configCopied);
+    try {
+      var ok = document.execCommand("copy");
+      setToast(ok ? TEXTS.configCopied : "Не удалось скопировать");
+    } catch (e2) {
+      setToast("Не удалось скопировать конфиг");
+    } finally {
+      document.body.removeChild(textarea);
+    }
   }
 
   async function bootstrap() {
     renderBase();
+
+    // Restore cached config while waiting for server
+    if (state.user && state.user.id) {
+      var cached = loadCachedConfig(state.user.id);
+      if (cached) {
+        state.configText = cached;
+        els.configPreview.textContent = cached;
+        els.configPreview.classList.remove("hidden");
+        setGeneratedDownloads(cached);
+      }
+    }
+
     renderPlans(getFallbackPlans(), config.app && config.app.defaultPlanId);
     renderPlatforms();
     renderDownloads();
