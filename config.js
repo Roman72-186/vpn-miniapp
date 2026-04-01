@@ -44,19 +44,19 @@
     {
       id: "windows",
       title: "Windows",
-      description: "Официальная страница загрузки AmneziaVPN для Windows",
+      description: "Официальная страница загрузки Amnezia для Windows",
       url: "https://amnezia.org/ru/downloads",
     },
     {
       id: "android",
       title: "Android",
-      description: "Официальная страница загрузки AmneziaVPN для Android",
+      description: "Официальная страница загрузки Amnezia для Android",
       url: "https://amnezia.org/ru/downloads",
     },
     {
       id: "macos",
       title: "macOS",
-      description: "Официальная страница загрузки AmneziaVPN для macOS",
+      description: "Официальная страница загрузки Amnezia для macOS",
       url: "https://amnezia.org/ru/downloads",
     },
     {
