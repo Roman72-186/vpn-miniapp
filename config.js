@@ -25,9 +25,9 @@
       planId: "vpn_7d",
       title: "Сервис из трёх букв 🦊 на 7 дней",
       description: "Короткий платный доступ на неделю.",
-      amountStars: 70,
+      amountStars: 1,
       durationDays: 7,
-      badge: "70 Stars",
+      badge: "1 Star",
       isFree: false,
     },
     {
