@@ -2,21 +2,32 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <title>CreativeAnalytic VPN</title>
     <meta name="description" content="VPN mini app" />
-    <link rel="stylesheet" href="./styles.css?v=20260322-2" />
+    <link rel="stylesheet" href="./styles.css?v=20260401-1" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
-    <script src="./config.js?v=20260322-2"></script>
+    <script src="./config.js?v=20260401-1"></script>
   </head>
   <body>
     <main class="app">
       <section class="hero card">
         <div>
           <p class="eyebrow">VPN Mini App</p>
-          <h1 id="title" data-default="CreativeAnalytic VPN">CreativeAnalytic VPN</h1>
-          <p id="subtitle" class="muted" data-default="Telegram-only miniapp для выдачи VPN-конфигов.">Telegram-only miniapp для выдачи VPN-конфигов.</p>
+          <h1 id="title" data-default="CreativeAnalytic VPN">
+            CreativeAnalytic VPN
+          </h1>
+          <p
+            id="subtitle"
+            class="muted"
+            data-default="Telegram-only miniapp для выдачи VPN-конфигов."
+          >
+            Telegram-only miniapp для выдачи VPN-конфигов.
+          </p>
         </div>
         <div class="price-box">
           <span data-default="Выбранный план">Выбранный план</span>
@@ -28,13 +39,27 @@
         <article class="card">
           <p class="eyebrow" data-default="Пользователь">Пользователь</p>
           <strong id="user-name" data-default="Неизвестно">Неизвестно</strong>
-          <p id="user-meta" class="muted" data-default="Откройте miniapp внутри Telegram.">Откройте miniapp внутри Telegram.</p>
+          <p
+            id="user-meta"
+            class="muted"
+            data-default="Откройте miniapp внутри Telegram."
+          >
+            Откройте miniapp внутри Telegram.
+          </p>
         </article>
 
         <article class="card">
           <p class="eyebrow" data-default="Доступ">Доступ</p>
-          <strong id="access-status" data-default="Нет активного доступа">Нет активного доступа</strong>
-          <p id="access-meta" class="muted" data-default="Статус появится здесь после оплаты.">Статус появится здесь после оплаты.</p>
+          <strong id="access-status" data-default="Нет активного доступа"
+            >Нет активного доступа</strong
+          >
+          <p
+            id="access-meta"
+            class="muted"
+            data-default="Статус появится здесь после оплаты."
+          >
+            Статус появится здесь после оплаты.
+          </p>
         </article>
       </section>
 
@@ -44,7 +69,13 @@
             <p class="eyebrow" data-default="Тарифы">Тарифы</p>
             <h2 data-default="Выберите доступ">Выберите доступ</h2>
           </div>
-          <p id="plan-hint" class="muted" data-default="3 дня — пробный, 7 и 30 дней — платные планы.">3 дня — пробный, 7 и 30 дней — платные планы.</p>
+          <p
+            id="plan-hint"
+            class="muted"
+            data-default="3 дня — пробный, 7 и 30 дней — платные планы."
+          >
+            3 дня — пробный, 7 и 30 дней — платные планы.
+          </p>
         </div>
         <div id="plans" class="plan-list"></div>
       </section>
@@ -55,7 +86,14 @@
             <p class="eyebrow" data-default="Устройство">Устройство</p>
             <h2 data-default="Куда установить?">Куда установить?</h2>
           </div>
-          <p id="platform-hint" class="muted" data-default="Выберите устройство, чтобы мы показали нужную ссылку и шаги установки.">Выберите устройство, чтобы мы показали нужную ссылку и шаги установки.</p>
+          <p
+            id="platform-hint"
+            class="muted"
+            data-default="Выберите устройство, чтобы мы показали нужную ссылку и шаги установки."
+          >
+            Выберите устройство, чтобы мы показали нужную ссылку и шаги
+            установки.
+          </p>
         </div>
         <div id="platforms" class="platform-list"></div>
       </section>
@@ -64,13 +102,39 @@
         <div>
           <p class="eyebrow" data-default="Оформление">Оформление</p>
           <h2 id="plan-title" data-default="VPN на 30 дней">VPN на 30 дней</h2>
-          <p id="plan-description" class="muted" data-default="Детали плана появятся после выбора.">Детали плана появятся после выбора.</p>
-          <p id="target-summary" class="muted target-summary" data-default="Сначала выберите устройство.">Сначала выберите устройство.</p>
+          <p
+            id="plan-description"
+            class="muted"
+            data-default="Детали плана появятся после выбора."
+          >
+            Детали плана появятся после выбора.
+          </p>
+          <p
+            id="target-summary"
+            class="muted target-summary"
+            data-default="Сначала выберите устройство."
+          >
+            Сначала выберите устройство.
+          </p>
         </div>
 
         <div class="buttons">
-          <button id="buy-button" class="button primary" type="button" data-default="Купить">Купить</button>
-          <button id="refresh-button" class="button secondary" type="button" data-default="Обновить статус">Обновить статус</button>
+          <button
+            id="buy-button"
+            class="button primary"
+            type="button"
+            data-default="Купить"
+          >
+            Купить
+          </button>
+          <button
+            id="refresh-button"
+            class="button secondary"
+            type="button"
+            data-default="Обновить статус"
+          >
+            Обновить статус
+          </button>
         </div>
       </section>
 
@@ -82,19 +146,68 @@
 
         <article class="card">
           <p class="eyebrow" data-default="Конфигурация">Конфигурация</p>
-          <div id="config-box" class="config-box" data-default="Ваш .conf файл появится здесь после оплаты.">Ваш .conf файл появится здесь после оплаты.</div>
-          <p id="config-help" class="muted top-gap" data-default="После выдачи можно открыть QR, скачать .conf, .txt или скопировать текст.">После выдачи можно открыть QR, скачать .conf, .txt или скопировать текст.</p>
+          <div
+            id="config-box"
+            class="config-box"
+            data-default="Ваш .conf файл появится здесь после оплаты."
+          >
+            Ваш .conf файл появится здесь после оплаты.
+          </div>
+          <p
+            id="config-help"
+            class="muted top-gap"
+            data-default="После выдачи можно открыть QR, скачать .conf, .txt или скопировать текст."
+          >
+            После выдачи можно открыть QR, скачать .conf, .txt или скопировать
+            текст.
+          </p>
           <div class="buttons top-gap config-actions">
-            <button id="qr-button" class="button secondary" type="button" disabled data-default="Показать QR">Показать QR</button>
-            <button id="copy-button" class="button secondary" type="button" disabled data-default="Скопировать">Скопировать</button>
-            <a id="download-link" class="button secondary disabled-link" href="#" download="creativeanalytic-vpn.conf" data-default="Скачать .conf">Скачать .conf</a>
-            <a id="download-text-link" class="button secondary disabled-link" href="#" download="creativeanalytic-vpn.txt" data-default="Скачать .txt">Скачать .txt</a>
+            <button
+              id="qr-button"
+              class="button secondary"
+              type="button"
+              disabled
+              data-default="Показать QR"
+            >
+              Показать QR
+            </button>
+            <button
+              id="copy-button"
+              class="button secondary"
+              type="button"
+              disabled
+              data-default="Скопировать"
+            >
+              Скопировать
+            </button>
+            <a
+              id="download-link"
+              class="button secondary disabled-link"
+              href="#"
+              download="creativeanalytic-vpn.conf"
+              data-default="Скачать .conf"
+              >Скачать .conf</a
+            >
+            <a
+              id="download-text-link"
+              class="button secondary disabled-link"
+              href="#"
+              download="creativeanalytic-vpn.txt"
+              data-default="Скачать .txt"
+              >Скачать .txt</a
+            >
           </div>
           <section id="qr-section" class="qr-section hidden">
             <div class="qr-card">
               <canvas id="qr-canvas" width="240" height="240"></canvas>
             </div>
-            <p id="qr-hint" class="muted" data-default="QR удобно использовать для импорта на другом устройстве.">QR удобно использовать для импорта на другом устройстве.</p>
+            <p
+              id="qr-hint"
+              class="muted"
+              data-default="QR удобно использовать для импорта на другом устройстве."
+            >
+              QR удобно использовать для импорта на другом устройстве.
+            </p>
           </section>
           <pre id="config-preview" class="config-preview hidden"></pre>
         </article>
@@ -104,20 +217,56 @@
         <div class="section-head">
           <div>
             <p class="eyebrow" data-default="Импорт">Импорт</p>
-            <h2 id="instruction-title" data-default="Как подключить">Как подключить</h2>
+            <h2 id="instruction-title" data-default="Как подключить">
+              Как подключить
+            </h2>
           </div>
-          <p id="instruction-badge" class="muted" data-default="Выберите устройство выше — здесь появятся шаги установки и импорта.">Выберите устройство выше — здесь появятся шаги установки и импорта.</p>
+          <p
+            id="instruction-badge"
+            class="muted"
+            data-default="Выберите устройство выше — здесь появятся шаги установки и импорта."
+          >
+            Выберите устройство выше — здесь появятся шаги установки и импорта.
+          </p>
         </div>
-        <div id="instruction-empty" class="instruction-empty" data-default="Сначала выберите платформу — мы оставим только нужную ссылку и шаги импорта.">Сначала выберите платформу — мы оставим только нужную ссылку и шаги импорта.</div>
+        <div
+          id="instruction-empty"
+          class="instruction-empty"
+          data-default="Сначала выберите платформу — мы оставим только нужную ссылку и шаги импорта."
+        >
+          Сначала выберите платформу — мы оставим только нужную ссылку и шаги
+          импорта.
+        </div>
         <article id="instruction-card" class="instruction-card hidden">
           <div class="instruction-header">
-            <strong id="instruction-platform" data-default="Windows">Windows</strong>
-            <span id="instruction-state" class="instruction-chip" data-default="Ждём конфиг">Ждём конфиг</span>
+            <strong id="instruction-platform" data-default="Windows"
+              >Windows</strong
+            >
+            <span
+              id="instruction-state"
+              class="instruction-chip"
+              data-default="Ждём конфиг"
+              >Ждём конфиг</span
+            >
           </div>
-          <p id="instruction-summary" class="muted" data-default="Сначала установите приложение, затем вернитесь сюда за конфигом.">Сначала установите приложение, затем вернитесь сюда за конфигом.</p>
+          <p
+            id="instruction-summary"
+            class="muted"
+            data-default="Сначала установите приложение, затем вернитесь сюда за конфигом."
+          >
+            Сначала установите приложение, затем вернитесь сюда за конфигом.
+          </p>
           <ol id="instruction-steps" class="instruction-steps"></ol>
           <div class="buttons top-gap">
-            <a id="instruction-link" class="button secondary disabled-link" href="#" target="_blank" rel="noreferrer" data-default="Открыть инструкцию">Открыть инструкцию</a>
+            <a
+              id="instruction-link"
+              class="button secondary disabled-link"
+              href="#"
+              target="_blank"
+              rel="noreferrer"
+              data-default="Открыть инструкцию"
+              >Открыть инструкцию</a
+            >
           </div>
         </article>
       </section>
@@ -125,19 +274,40 @@
       <p id="toast" class="toast"></p>
     </main>
 
-    <div id="qr-modal" class="qr-modal hidden" role="dialog" aria-modal="true" aria-labelledby="qr-modal-title">
+    <div
+      id="qr-modal"
+      class="qr-modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="qr-modal-title"
+    >
       <div class="qr-modal-backdrop" data-close="true"></div>
       <div class="qr-modal-panel">
-        <button id="qr-modal-close" class="qr-close" type="button" aria-label="Close QR">x</button>
+        <button
+          id="qr-modal-close"
+          class="qr-close"
+          type="button"
+          aria-label="Close QR"
+        >
+          x
+        </button>
         <p class="eyebrow" data-default="QR">QR</p>
-        <h2 id="qr-modal-title" data-default="QR на весь экран">QR на весь экран</h2>
-        <p id="qr-modal-hint" class="muted" data-default="Откройте QR на другом устройстве или скачайте .conf / .txt.">Откройте QR на другом устройстве или скачайте .conf / .txt.</p>
+        <h2 id="qr-modal-title" data-default="QR на весь экран">
+          QR на весь экран
+        </h2>
+        <p
+          id="qr-modal-hint"
+          class="muted"
+          data-default="Откройте QR на другом устройстве или скачайте .conf / .txt."
+        >
+          Откройте QR на другом устройстве или скачайте .conf / .txt.
+        </p>
         <div class="qr-modal-card">
           <canvas id="qr-modal-canvas" width="320" height="320"></canvas>
         </div>
       </div>
     </div>
 
-    <script src="./app.js?v=20260322-2"></script>
+    <script src="./app.js?v=20260401-1"></script>
   </body>
 </html>

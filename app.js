@@ -1,111 +1,166 @@
-﻿(function () {
-  const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+(function () {
+  const tg =
+    window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   const config = window.VPN_APP_CONFIG || {};
 
   // Словарь текстов для локализации (чтобы избежать проблем с кодировкой в Telegram WebView)
   const TEXTS = {
     // Hero section
     title: "CreativeAnalytic VPN",
-    subtitle: "Telegram-only miniapp для выдачи VPN-конфигов.",
-    priceLabel: "Выбранный план",
-    
+    subtitle:
+      "Telegram-only miniapp \u0434\u043b\u044f \u0432\u044b\u0434\u0430\u0447\u0438 VPN-\u043a\u043e\u043d\u0444\u0438\u0433\u043e\u0432.",
+    priceLabel:
+      "\u0412\u044b\u0431\u0440\u0430\u043d\u043d\u044b\u0439 \u043f\u043b\u0430\u043d",
+
     // User section
-    userLabel: "Пользователь",
-    userNameDefault: "Неизвестно",
-    userMeta: "Откройте miniapp внутри Telegram.",
-    
+    userLabel:
+      "\u041f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044c",
+    userNameDefault:
+      "\u041d\u0435\u0438\u0437\u0432\u0435\u0441\u0442\u043d\u043e",
+    userMeta:
+      "\u041e\u0442\u043a\u0440\u043e\u0439\u0442\u0435 miniapp \u0432\u043d\u0443\u0442\u0440\u0438 Telegram.",
+
     // Access section
-    accessLabel: "Доступ",
-    accessStatusDefault: "Нет активного доступа",
-    accessMeta: "Статус появится здесь после оплаты.",
-    
+    accessLabel: "\u0414\u043e\u0441\u0442\u0443\u043f",
+    accessStatusDefault:
+      "\u041d\u0435\u0442 \u0430\u043a\u0442\u0438\u0432\u043d\u043e\u0433\u043e \u0434\u043e\u0441\u0442\u0443\u043f\u0430",
+    accessMeta:
+      "\u0421\u0442\u0430\u0442\u0443\u0441 \u043f\u043e\u044f\u0432\u0438\u0442\u0441\u044f \u0437\u0434\u0435\u0441\u044c \u043f\u043e\u0441\u043b\u0435 \u043e\u043f\u043b\u0430\u0442\u044b.",
+
     // Plans section
-    plansLabel: "Тарифы",
-    plansTitle: "Выберите доступ",
-    planHint: "3 дня — пробный, 7 и 30 дней — платные планы.",
-    
+    plansLabel: "\u0422\u0430\u0440\u0438\u0444\u044b",
+    plansTitle:
+      "\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0434\u043e\u0441\u0442\u0443\u043f",
+    planHint:
+      "3 \u0434\u043d\u044f \u2014 \u043f\u0440\u043e\u0431\u043d\u044b\u0439, 7 \u0438 30 \u0434\u043d\u0435\u0439 \u2014 \u043f\u043b\u0430\u0442\u043d\u044b\u0435 \u043f\u043b\u0430\u043d\u044b.",
+
     // Platforms section
-    platformsLabel: "Устройство",
-    platformsTitle: "Куда установить?",
-    platformHint: "Выберите устройство, чтобы мы показали нужную ссылку и шаги установки.",
-    
+    platformsLabel:
+      "\u0423\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u043e",
+    platformsTitle:
+      "\u041a\u0443\u0434\u0430 \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u0438\u0442\u044c?",
+    platformHint:
+      "\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u043e, \u0447\u0442\u043e\u0431\u044b \u043c\u044b \u043f\u043e\u043a\u0430\u0437\u0430\u043b\u0438 \u043d\u0443\u0436\u043d\u0443\u044e \u0441\u0441\u044b\u043b\u043a\u0443 \u0438 \u0448\u0430\u0433\u0438 \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0438.",
+
     // Actions section
-    actionsLabel: "Оформление",
-    planTitleDefault: "VPN на 30 дней",
-    planDescription: "Детали плана появятся после выбора.",
-    targetSummaryDefault: "Сначала выберите устройство.",
-    buyButton: "Купить",
-    refreshButton: "Обновить статус",
-    
+    actionsLabel:
+      "\u041e\u0444\u043e\u0440\u043c\u043b\u0435\u043d\u0438\u0435",
+    planTitleDefault: "VPN \u043d\u0430 30 \u0434\u043d\u0435\u0439",
+    planDescription:
+      "\u0414\u0435\u0442\u0430\u043b\u0438 \u043f\u043b\u0430\u043d\u0430 \u043f\u043e\u044f\u0432\u044f\u0442\u0441\u044f \u043f\u043e\u0441\u043b\u0435 \u0432\u044b\u0431\u043e\u0440\u0430.",
+    targetSummaryDefault:
+      "\u0421\u043d\u0430\u0447\u0430\u043b\u0430 \u0432\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u043e.",
+    buyButton: "\u041a\u0443\u043f\u0438\u0442\u044c",
+    refreshButton:
+      "\u041e\u0431\u043d\u043e\u0432\u0438\u0442\u044c \u0441\u0442\u0430\u0442\u0443\u0441",
+
     // Downloads section
-    downloadsLabel: "Загрузки",
-    
+    downloadsLabel: "\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0438",
+
     // Config section
-    configLabel: "Конфигурация",
-    configBoxDefault: "Ваш .conf файл появится здесь после оплаты.",
-    configHelp: "После выдачи можно открыть QR, скачать .conf, .txt или скопировать текст.",
-    qrButton: "Показать QR",
-    copyButton: "Скопировать",
-    downloadConf: "Скачать .conf",
-    downloadTxt: "Скачать .txt",
-    qrHint: "QR удобно использовать для импорта на другом устройстве.",
-    
+    configLabel:
+      "\u041a\u043e\u043d\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u044f",
+    configBoxDefault:
+      "\u0412\u0430\u0448 .conf \u0444\u0430\u0439\u043b \u043f\u043e\u044f\u0432\u0438\u0442\u0441\u044f \u0437\u0434\u0435\u0441\u044c \u043f\u043e\u0441\u043b\u0435 \u043e\u043f\u043b\u0430\u0442\u044b.",
+    configHelp:
+      "\u041f\u043e\u0441\u043b\u0435 \u0432\u044b\u0434\u0430\u0447\u0438 \u043c\u043e\u0436\u043d\u043e \u043e\u0442\u043a\u0440\u044b\u0442\u044c QR, \u0441\u043a\u0430\u0447\u0430\u0442\u044c .conf, .txt \u0438\u043b\u0438 \u0441\u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0442\u0435\u043a\u0441\u0442.",
+    qrButton: "\u041f\u043e\u043a\u0430\u0437\u0430\u0442\u044c QR",
+    copyButton:
+      "\u0421\u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u0442\u044c",
+    downloadConf: "\u0421\u043a\u0430\u0447\u0430\u0442\u044c .conf",
+    downloadTxt: "\u0421\u043a\u0430\u0447\u0430\u0442\u044c .txt",
+    qrHint:
+      "QR \u0443\u0434\u043e\u0431\u043d\u043e \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u044c \u0434\u043b\u044f \u0438\u043c\u043f\u043e\u0440\u0442\u0430 \u043d\u0430 \u0434\u0440\u0443\u0433\u043e\u043c \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u0435.",
+
     // Import section
-    importLabel: "Импорт",
-    importTitle: "Как подключить",
-    importBadge: "Выберите устройство выше — здесь появятся шаги установки и импорта.",
-    instructionEmpty: "Сначала выберите платформу — мы оставим только нужную ссылку и шаги импорта.",
+    importLabel: "\u0418\u043c\u043f\u043e\u0440\u0442",
+    importTitle:
+      "\u041a\u0430\u043a \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0438\u0442\u044c",
+    importBadge:
+      "\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u043e \u0432\u044b\u0448\u0435 \u2014 \u0437\u0434\u0435\u0441\u044c \u043f\u043e\u044f\u0432\u044f\u0442\u0441\u044f \u0448\u0430\u0433\u0438 \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0438 \u0438 \u0438\u043c\u043f\u043e\u0440\u0442\u0430.",
+    instructionEmpty:
+      "\u0421\u043d\u0430\u0447\u0430\u043b\u0430 \u0432\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u043f\u043b\u0430\u0442\u0444\u043e\u0440\u043c\u0443 \u2014 \u043c\u044b \u043e\u0441\u0442\u0430\u0432\u0438\u043c \u0442\u043e\u043b\u044c\u043a\u043e \u043d\u0443\u0436\u043d\u0443\u044e \u0441\u0441\u044b\u043b\u043a\u0443 \u0438 \u0448\u0430\u0433\u0438 \u0438\u043c\u043f\u043e\u0440\u0442\u0430.",
     instructionPlatformDefault: "Windows",
-    instructionStateDefault: "Ждём конфиг",
-    instructionSummary: "Сначала установите приложение, затем вернитесь сюда за конфигом.",
-    instructionLink: "Открыть инструкцию",
-    
+    instructionStateDefault:
+      "\u0416\u0434\u0451\u043c \u043a\u043e\u043d\u0444\u0438\u0433",
+    instructionSummary:
+      "\u0421\u043d\u0430\u0447\u0430\u043b\u0430 \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u0438\u0442\u0435 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0435, \u0437\u0430\u0442\u0435\u043c \u0432\u0435\u0440\u0404\u043d\u0438\u0442\u0435\u0441\u044c \u0441\u044e\u0434\u0430 \u0437\u0430 \u043a\u043e\u043d\u0444\u0438\u0433\u043e\u043c.",
+    instructionLink:
+      "\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0438\u043d\u0441\u0442\u0440\u0443\u043a\u0446\u0438\u044e",
+
     // QR Modal
-    qrModalTitle: "QR на весь экран",
-    qrModalHint: "Откройте QR на другом устройстве или скачайте .conf / .txt.",
-    
+    qrModalTitle:
+      "QR \u043d\u0430 \u0432\u0441\u044f \u044d\u043a\u0440\u0430\u043d",
+    qrModalHint:
+      "\u041e\u0442\u043a\u0440\u043e\u0439\u0442\u0435 QR \u043d\u0430 \u0434\u0440\u0443\u0433\u043e\u043c \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u0435 \u0438\u043b\u0438 \u0441\u043a\u0430\u0447\u0430\u0439\u0442\u0435 .conf / .txt.",
+
     // Toast messages
-    qrFailed: "Не удалось построить QR-код",
-    telegramOnly: "Эта miniapp работает только внутри Telegram.",
-    noInvoiceUrl: "createInvoiceUrl не настроен",
-    selectPlan: "Сначала выберите тариф",
-    selectPlatform: "Сначала выберите устройство",
-    paymentPreparing: "Готовим оплату...",
-    issuingAccess: "Выдаём доступ...",
-    statusUpdating: "Проверяем...",
-    statusUpdated: "Статус обновлён",
-    configCopied: "Конфиг скопирован",
-    configCopyFailed: "Не удалось скопировать конфиг",
-    noCatalog: "Каталог пока не подключён",
-    noStatus: "Статус пока не подключён",
-    loadError: "Ошибка запуска miniapp",
-    
+    qrFailed:
+      "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u043f\u043e\u0441\u0442\u0440\u043e\u0438\u0442\u044c QR-\u043a\u043e\u0434",
+    telegramOnly:
+      "\u042d\u0442\u0430 miniapp \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0442 \u0442\u043e\u043b\u044c\u043a\u043e \u0432\u043d\u0443\u0442\u0440\u0438 Telegram.",
+    noInvoiceUrl:
+      "createInvoiceUrl \u043d\u0435 \u043d\u0430\u0441\u0442\u0440\u043e\u0435\u043d",
+    selectPlan:
+      "\u0421\u043d\u0430\u0447\u0430\u043b\u0430 \u0432\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0442\u0430\u0440\u0438\u0444",
+    selectPlatform:
+      "\u0421\u043d\u0430\u0447\u0430\u043b\u0430 \u0432\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u043e",
+    paymentPreparing:
+      "\u0413\u043e\u0442\u043e\u0432\u0438\u043c \u043e\u043f\u043b\u0430\u0442\u0443...",
+    issuingAccess:
+      "\u0412\u044b\u0434\u0430\u0451\u043c \u0434\u043e\u0441\u0442\u0443\u043f...",
+    statusUpdating: "\u041f\u0440\u043e\u0432\u0435\u0440\u044f\u0435\u043c...",
+    statusUpdated:
+      "\u0421\u0442\u0430\u0442\u0443\u0441 \u043e\u0431\u043d\u043e\u0432\u0451\u043d",
+    configCopied:
+      "\u041a\u043e\u043d\u0444\u0438\u0433 \u0441\u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u043d",
+    configCopyFailed:
+      "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u043a\u043e\u043d\u0444\u0438\u0433",
+    noCatalog:
+      "\u041a\u0430\u0442\u0430\u043b\u043e\u0433 \u043f\u043e\u043a\u0430 \u043d\u0435 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0451\u043d",
+    noStatus:
+      "\u0421\u0442\u0430\u0442\u0443\u0441 \u043f\u043e\u043a\u0430 \u043d\u0435 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0451\u043d",
+    loadError:
+      "\u041e\u0448\u0438\u0431\u043a\u0430 \u0437\u0430\u043f\u0443\u0441\u043a\u0430 miniapp",
+
     // Dynamic texts
     platformDownload: (title) => `Скачать приложение`,
     platformInstruction: (title) => `Открыть инструкцию для ${title}`,
     platformWaiting: (title) => `Подготовка ${title}`,
     platformReady: (title) => `Как подключить ${title}`,
-    accessExpires: (date, platform) => `Оплачен до ${date}${platform ? ` · ${platform}` : ""}`,
-    accessConfirmed: (platform) => `Доступ подтверждён${platform ? ` · ${platform}` : ""}`,
+    accessExpires: (date, platform) =>
+      `Оплачен до ${date}${platform ? ` \u00b7 ${platform}` : ""}`,
+    accessConfirmed: (platform) =>
+      `Доступ подтверждён${platform ? ` \u00b7 ${platform}` : ""}`,
     accessActive: "Доступ активен",
     accessExpired: "Доступ истёк",
     accessAwaiting: "Ждём выдачу конфигурации новым VPN-сервером.",
     accessPendingPayment: "Счёт создан",
     accessPaid: "Оплата получена",
     accessNoActive: "Нет активного доступа",
-    trialUsed: "Пробный доступ уже использован. Доступны только платные тарифы.",
+    trialUsed:
+      "Пробный доступ уже использован. Доступны только платные тарифы.",
     trialOnce: "Пробный тариф можно активировать только один раз.",
     durationDays: (days) => `Срок доступа: ${days} дней.`,
-    newTariffAfter: "Новый тариф можно оформить после завершения текущего доступа.",
+    newTariffAfter:
+      "Новый тариф можно оформить после завершения текущего доступа.",
     selectPlatformInstall: "Сначала выберите устройство для установки.",
-    platformInstall: (title) => `Установка: ${title}. Перед оформлением всё готово.`,
-    mobileHelp: "Для телефона доступны .conf, .txt и полноэкранный QR. Если miniapp открыта на том же устройстве, удобнее использовать файл или текст.",
-    desktopHelp: "Для компьютера удобнее скачать .conf или .txt. QR-код тоже можно открыть на весь экран как запасной вариант.",
-    noConfigYet: "После выдачи можно будет открыть QR, скачать .conf, скачать .txt и скопировать текст.",
-    mobileQr: "Если miniapp открыта на этом же телефоне, удобнее скачать .conf или .txt. QR полезен для второго экрана.",
-    desktopQr: "Откройте QR на другом устройстве или используйте .conf / .txt для ручного импорта.",
-    mobileQrShow: "Если miniapp открыта на этом же телефоне, удобнее скачать .conf или .txt. QR лучше открыть на другом экране.",
-    desktopQrShow: "QR удобно показать на большом экране и отсканировать с телефона. Для компьютера можно просто скачать .conf.",
+    platformInstall: (title) =>
+      `Установка: ${title}. Перед оформлением всё готово.`,
+    mobileHelp:
+      "Для телефона доступны .conf, .txt и полноэкранный QR. Если miniapp открыта на том же устройстве, удобнее использовать файл или текст.",
+    desktopHelp:
+      "Для компьютера удобнее скачать .conf или .txt. QR-код тоже можно открыть на весь экран как запасной вариант.",
+    noConfigYet:
+      "После выдачи можно будет открыть QR, скачать .conf, скачать .txt и скопировать текст.",
+    mobileQr:
+      "Если miniapp открыта на этом же телефоне, удобнее скачать .conf или .txt. QR полезен для второго экрана.",
+    desktopQr:
+      "Откройте QR на другом устройстве или используйте .conf / .txt для ручного импорта.",
+    mobileQrShow:
+      "Если miniapp открыта на этом же телефоне, удобнее скачать .conf или .txt. QR лучше открыть на другом экране.",
+    desktopQrShow:
+      "QR удобно показать на большом экране и отсканировать с телефона. Для компьютера можно просто скачать .conf.",
     qrFor: (title) => `QR для ${title}`,
     qrImport: "QR для импорта",
     selectTariff: "Выберите тариф",
@@ -115,223 +170,118 @@
     openInTelegram: "Откройте в Telegram",
     noPlan: "Выберите тариф",
     noPlatform: "Выберите устройство",
-    platformSelected: (title) => `Выбрано: ${title}. Остальные устройства скрыты, ниже оставили только нужную установку.`,
+    platformSelected: (title) =>
+      `Выбрано: ${title}. Остальные устройства скрыты, ниже оставили только нужную установку.`,
     platformFixed: (title) => `Устройство зафиксировано: ${title}.`,
-    selectPlatformToInstall: "Перед оформлением выберите устройство, чтобы мы показали нужную ссылку и шаги установки.",
+    selectPlatformToInstall:
+      "Перед оформлением выберите устройство, чтобы мы показали нужную ссылку и шаги установки.",
     platformsLoading: "Список устройств появится после загрузки каталога.",
     configReady: "Конфиг готов: можно импортировать",
     installFirst: "Сначала поставьте приложение, потом оформляйте доступ",
     configIssued: "Конфиг выдан",
     awaitingConfig: "Ждём конфиг",
     notOrdered: "Ещё не оформлено",
-    configFile: "Скачайте .conf или .txt из блока «Конфиг».",
-    configDownload: "Скачайте .conf или .txt из miniapp.",
-    configOpenQr: "Нажмите «Открыть QR» или скачайте .conf / .txt.",
-    configSelect: "Выберите удобный способ импорта: QR, .conf или .txt.",
-    configOpen: "Откройте AmneziaVPN и выберите импорт конфигурации.",
-    configSelectFile: "Выберите файл в приложении «Файлы» или вставьте текст вручную.",
-    configSave: "Сохраните профиль и подключитесь.",
-    configEnable: "Сохраните профиль и включите VPN.",
-    configImport: "Импортируйте его в AmneziaVPN любым удобным способом.",
-    configSelectDownload: "Выберите файл или вставьте текст вручную.",
-    configSaveProfile: "Сохраните профиль и нажмите «Подключить».",
-    configOpenApp: "Откройте AmneziaVPN и выберите импорт существующей конфигурации.",
-    configSelectFileApp: "Укажите файл .conf или вставьте текст вручную.",
-    configSaveProfileApp: "Сохраните профиль и нажмите «Подключить».",
-    configSelectDownloadApp: "Выберите файл или вставьте текст вручную.",
-    configSaveProfileApp2: "Сохраните профиль и подключитесь.",
-    configSelectFileApp2: "Выберите файл из «Файлов» или вставьте текст вручную.",
-    configSaveProfileApp3: "Сохраните профиль и включите подключение.",
-    configSelectDownloadApp2: "Скачайте .conf или .txt в miniapp.",
-    configSelectDownloadApp3: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp4: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp5: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp6: "Скачайте .conf или .txt в miniapp.",
-    configSelectDownloadApp7: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp8: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp9: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp10: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp11: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp12: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp13: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp14: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp15: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp16: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp17: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp18: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp19: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp20: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp21: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp22: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp23: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp24: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp25: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp26: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp27: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp28: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp29: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp30: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp31: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp32: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp33: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp34: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp35: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp36: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp37: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp38: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp39: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp40: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp41: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp42: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp43: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp44: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp45: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp46: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp47: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp48: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp49: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp50: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp51: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp52: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp53: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp54: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp55: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp56: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp57: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp58: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp59: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp60: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp61: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp62: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp63: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp64: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp65: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp66: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp67: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp68: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp69: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp70: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp71: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp72: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp73: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp74: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp75: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp76: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp77: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp78: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp79: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp80: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp81: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp82: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp83: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp84: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp85: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp86: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp87: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp88: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp89: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp90: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp91: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp92: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp93: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp94: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp95: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp96: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp97: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp98: "Скачайте .conf или .txt из miniapp.",
-    configSelectDownloadApp99: "Скачайте .conf или .txt из блока «Конфиг».",
-    configSelectDownloadApp100: "Скачайте .conf или .txt из miniapp.",
-    
-    // Platform instructions
     windows: {
-      waitingSummary: "Сначала установите AmneziaVPN на Windows, затем вернитесь сюда и получите конфиг.",
-      readySummary: "На Windows удобнее всего скачать .conf или .txt и импортировать конфигурацию прямо в приложении.",
+      waitingSummary:
+        "Сначала установите AmneziaVPN на Windows, затем вернитесь сюда и получите конфиг.",
+      readySummary:
+        "На Windows удобнее всего скачать .conf или .txt и импортировать конфигурацию прямо в приложении.",
       waitingSteps: [
         "Откройте страницу установки и поставьте AmneziaVPN на компьютер.",
         "Вернитесь в miniapp и выберите тариф, когда приложение уже установлено.",
-        "После выдачи конфигурации скачайте .conf или .txt из блока «Конфиг»."
+        "После выдачи конфигурации скачайте .conf или .txt из блока «Конфиг».",
       ],
       readySteps: [
         "Скачайте .conf или .txt из блока «Конфиг».",
         "Откройте AmneziaVPN и выберите импорт существующей конфигурации.",
         "Укажите файл .conf или вставьте текст вручную.",
-        "Сохраните профиль и нажмите «Подключить»."
-      ]
+        "Сохраните профиль и нажмите «Подключить».",
+      ],
     },
     macos: {
-      waitingSummary: "Установите AmneziaVPN на macOS заранее — после этого конфиг можно будет сразу импортировать.",
-      readySummary: "На macOS тоже лучше использовать .conf или .txt, а QR оставить как запасной путь.",
+      waitingSummary:
+        "Установите AmneziaVPN на macOS заранее — после этого конфиг можно будет сразу импортировать.",
+      readySummary:
+        "На macOS тоже лучше использовать .conf или .txt, а QR оставить как запасной путь.",
       waitingSteps: [
         "Скачайте и установите AmneziaVPN для macOS.",
         "Вернитесь в miniapp и оформите нужный тариф.",
-        "Когда конфиг появится, сохраните файл .conf или .txt."
+        "Когда конфиг появится, сохраните файл .conf или .txt.",
       ],
       readySteps: [
         "Скачайте .conf или .txt из miniapp.",
         "В AmneziaVPN откройте импорт конфигурации.",
         "Выберите файл или вставьте текст вручную.",
-        "Сохраните профиль и подключитесь."
-      ]
+        "Сохраните профиль и подключитесь.",
+      ],
     },
     android: {
-      waitingSummary: "На Android можно подключаться и по файлу, и по тексту, и по QR — сначала поставьте приложение.",
-      readySummary: "Когда конфиг уже выдан, на Android можно использовать любой из трёх способов: QR, .conf или .txt.",
+      waitingSummary:
+        "На Android можно подключаться и по файлу, и по тексту, и по QR — сначала поставьте приложение.",
+      readySummary:
+        "Когда конфиг уже выдан, на Android можно использовать любой из трёх способов: QR, .conf или .txt.",
       waitingSteps: [
         "Установите AmneziaVPN на Android по ссылке ниже.",
         "Вернитесь в miniapp и оформите доступ.",
-        "Когда конфиг будет готов, выберите удобный способ импорта: QR, .conf или .txt."
+        "Когда конфиг будет готов, выберите удобный способ импорта: QR, .conf или .txt.",
       ],
       readySteps: [
         "Нажмите «Открыть QR» или скачайте .conf / .txt.",
         "В AmneziaVPN выберите добавление или импорт конфигурации.",
         "Отсканируйте QR либо выберите файл / вставьте текст.",
-        "Сохраните профиль и включите VPN."
-      ]
+        "Сохраните профиль и включите VPN.",
+      ],
     },
     iphone: {
-      waitingSummary: "Для iPhone сначала откройте инструкцию по установке AmneziaVPN, затем возвращайтесь сюда за конфигом.",
-      readySummary: "На iPhone обычно удобнее скачать .conf или .txt, а QR открыть на другом экране, если он нужен.",
+      waitingSummary:
+        "Для iPhone сначала откройте инструкцию по установке AmneziaVPN, затем возвращайтесь сюда за конфигом.",
+      readySummary:
+        "На iPhone обычно удобнее скачать .conf или .txt, а QR открыть на другом экране, если он нужен.",
       waitingSteps: [
         "Откройте инструкцию ниже и установите AmneziaVPN на iPhone.",
         "Вернитесь в miniapp и получите пробный или платный доступ.",
-        "Когда конфиг появится, скачайте .conf / .txt или откройте QR на другом устройстве."
+        "Когда конфиг появится, скачайте .conf / .txt или откройте QR на другом устройстве.",
       ],
       readySteps: [
         "Скачайте .conf или .txt из блока «Конфиг».",
         "Откройте AmneziaVPN и выберите импорт конфигурации.",
         "Выберите файл в приложении «Файлы» или вставьте текст вручную.",
-        "Сохраните профиль и подключитесь."
-      ]
+        "Сохраните профиль и подключитесь.",
+      ],
     },
     ipad: {
-      waitingSummary: "Для iPad сначала установите AmneziaVPN по инструкции, затем вернитесь сюда за конфигом.",
-      readySummary: "На iPad подойдут и файл, и текст, а QR удобнее показывать на отдельном экране.",
+      waitingSummary:
+        "Для iPad сначала установите AmneziaVPN по инструкции, затем вернитесь сюда за конфигом.",
+      readySummary:
+        "На iPad подойдут и файл, и текст, а QR удобнее показывать на отдельном экране.",
       waitingSteps: [
         "Откройте инструкцию ниже и установите AmneziaVPN на iPad.",
         "Вернитесь в miniapp и оформите доступ.",
-        "После выдачи конфига скачайте .conf или .txt — QR тоже останется доступен."
+        "После выдачи конфига скачайте .conf или .txt — QR тоже останется доступен.",
       ],
       readySteps: [
         "Скачайте .conf или .txt в miniapp.",
         "В AmneziaVPN выберите импорт конфигурации.",
         "Выберите файл из «Файлов» или вставьте текст вручную.",
-        "Сохраните профиль и включите подключение."
-      ]
+        "Сохраните профиль и включите подключение.",
+      ],
     },
     default: {
-      waitingSummary: "Сначала установите AmneziaVPN, затем вернитесь сюда за конфигом.",
-      readySummary: "Когда конфиг готов, можно импортировать его файлом, текстом или по QR.",
+      waitingSummary:
+        "Сначала установите AmneziaVPN, затем вернитесь сюда за конфигом.",
+      readySummary:
+        "Когда конфиг готов, можно импортировать его файлом, текстом или по QR.",
       waitingSteps: [
         "Установите AmneziaVPN на выбранное устройство.",
         "Вернитесь в miniapp и оформите доступ.",
-        "После выдачи используйте QR, .conf или .txt."
+        "После выдачи используйте QR, .conf или .txt.",
       ],
       readySteps: [
         "Получите конфиг в miniapp.",
         "Импортируйте его в AmneziaVPN любым удобным способом.",
-        "Сохраните профиль и подключитесь."
-      ]
-    }
+        "Сохраните профиль и подключитесь.",
+      ],
+    },
   };
 
   const els = {
@@ -379,7 +329,7 @@
     qrModalHint: document.getElementById("qr-modal-hint"),
     qrModalTitle: document.getElementById("qr-modal-title"),
     qrModalClose: document.getElementById("qr-modal-close"),
-    toast: document.getElementById("toast")
+    toast: document.getElementById("toast"),
   };
 
   const state = {
@@ -394,7 +344,7 @@
     platformRestored: false,
     qrVisible: false,
     confDownloadUrl: "",
-    textDownloadUrl: ""
+    textDownloadUrl: "",
   };
 
   const IMPORT_GUIDES = TEXTS;
@@ -410,18 +360,21 @@
       tg.initData.length > 0 &&
       tg.initDataUnsafe &&
       tg.initDataUnsafe.user &&
-      tg.initDataUnsafe.user.id
+      tg.initDataUnsafe.user.id,
     );
   }
 
   function getStorageKey() {
-    const userId = state.user && state.user.id ? String(state.user.id) : "guest";
+    const userId =
+      state.user && state.user.id ? String(state.user.id) : "guest";
     return `vpn-miniapp-platform:${userId}`;
   }
 
   function loadSavedPlatformId() {
     try {
-      return window.localStorage ? window.localStorage.getItem(getStorageKey()) || "" : "";
+      return window.localStorage
+        ? window.localStorage.getItem(getStorageKey()) || ""
+        : "";
     } catch (error) {
       return "";
     }
@@ -457,8 +410,10 @@
       description: String(plan.description || ""),
       amountStars,
       durationDays,
-      badge: String(plan.badge || (amountStars > 0 ? `${amountStars} Stars` : "Бесплатно")),
-      isFree: Boolean(plan.isFree || amountStars === 0)
+      badge: String(
+        plan.badge || (amountStars > 0 ? `${amountStars} Stars` : "Бесплатно"),
+      ),
+      isFree: Boolean(plan.isFree || amountStars === 0),
     };
   }
 
@@ -467,9 +422,13 @@
   }
 
   function getCurrentPlan() {
-    return state.plans.find(function (plan) {
-      return plan.planId === state.selectedPlanId;
-    }) || state.plans[0] || null;
+    return (
+      state.plans.find(function (plan) {
+        return plan.planId === state.selectedPlanId;
+      }) ||
+      state.plans[0] ||
+      null
+    );
   }
 
   function normalizePlatform(item) {
@@ -481,7 +440,7 @@
       id: String(item.id),
       title: String(item.title || "Устройство"),
       description: String(item.description || ""),
-      url: String(item.url || "")
+      url: String(item.url || ""),
     };
   }
 
@@ -490,24 +449,32 @@
   }
 
   function getCurrentPlatform() {
-    return state.platforms.find(function (item) {
-      return item.id === state.selectedPlatformId;
-    }) || null;
+    return (
+      state.platforms.find(function (item) {
+        return item.id === state.selectedPlatformId;
+      }) || null
+    );
   }
 
   function getVisiblePlatforms() {
-    const platforms = state.platforms.length ? state.platforms : getFallbackPlatforms();
+    const platforms = state.platforms.length
+      ? state.platforms
+      : getFallbackPlatforms();
     const selected = getCurrentPlatform();
     return selected ? [selected] : platforms;
   }
 
   function hasLockedAccess() {
     const access = state.access || {};
-    return Boolean(access.isActive || access.is_active || access.status === "awaiting_issue");
+    return Boolean(
+      access.isActive || access.is_active || access.status === "awaiting_issue",
+    );
   }
 
   function isMobilePlatform(platform) {
-    return Boolean(platform && ["android", "iphone", "ipad"].includes(platform.id));
+    return Boolean(
+      platform && ["android", "iphone", "ipad"].includes(platform.id),
+    );
   }
 
   function isCompactViewport() {
@@ -519,7 +486,8 @@
       return TEXTS.platformDownload("");
     }
 
-    return ["iphone", "ipad"].includes(platform.id)
+    // Для мобильных устройств показываем инструкцию, для десктопа - скачивание приложения
+    return ["android", "iphone", "ipad"].includes(platform.id)
       ? TEXTS.platformInstruction(platform.title)
       : TEXTS.platformDownload(platform.title);
   }
@@ -529,7 +497,8 @@
       return TEXTS.platformDownload("");
     }
 
-    return ["iphone", "ipad"].includes(platform.id)
+    // Для мобильных устройств показываем инструкцию, для десктопа - скачивание приложения
+    return ["android", "iphone", "ipad"].includes(platform.id)
       ? TEXTS.platformInstruction(platform.title)
       : TEXTS.platformDownload(platform.title);
   }
@@ -596,18 +565,36 @@
     }
 
     const baseName = buildFileBaseName();
-    const confBlob = new Blob([configText], { type: "text/plain;charset=utf-8" });
-    const txtBlob = new Blob([configText], { type: "text/plain;charset=utf-8" });
+    const confBlob = new Blob([configText], {
+      type: "text/plain;charset=utf-8",
+    });
+    const txtBlob = new Blob([configText], {
+      type: "text/plain;charset=utf-8",
+    });
 
     state.confDownloadUrl = window.URL.createObjectURL(confBlob);
     state.textDownloadUrl = window.URL.createObjectURL(txtBlob);
 
-    setLinkState(els.downloadLink, state.confDownloadUrl, TEXTS.downloadConf, `${baseName}.conf`);
-    setLinkState(els.downloadTextLink, state.textDownloadUrl, TEXTS.downloadTxt, `${baseName}.txt`);
+    setLinkState(
+      els.downloadLink,
+      state.confDownloadUrl,
+      TEXTS.downloadConf,
+      `${baseName}.conf`,
+    );
+    setLinkState(
+      els.downloadTextLink,
+      state.textDownloadUrl,
+      TEXTS.downloadTxt,
+      `${baseName}.txt`,
+    );
   }
 
   function renderQrCanvas(canvas, size, onSuccess) {
-    if (!state.configText || !window.QRCode || typeof window.QRCode.toCanvas !== "function") {
+    if (
+      !state.configText ||
+      !window.QRCode ||
+      typeof window.QRCode.toCanvas !== "function"
+    ) {
       setToast(TEXTS.qrFailed);
       return;
     }
@@ -620,8 +607,8 @@
         margin: 1,
         color: {
           dark: "#08223a",
-          light: "#f4f7fb"
-        }
+          light: "#f4f7fb",
+        },
       },
       function (error) {
         if (error) {
@@ -632,7 +619,7 @@
         if (typeof onSuccess === "function") {
           onSuccess();
         }
-      }
+      },
     );
   }
 
@@ -648,7 +635,9 @@
       : TEXTS.desktopQr;
 
     renderQrCanvas(els.qrModalCanvas, 320, function () {
-      els.qrModalTitle.textContent = platform ? TEXTS.qrFor(platform.title) : TEXTS.qrImport;
+      els.qrModalTitle.textContent = platform
+        ? TEXTS.qrFor(platform.title)
+        : TEXTS.qrImport;
       els.qrModalHint.textContent = modalHint;
       els.qrModal.classList.remove("hidden");
       document.body.classList.add("modal-open");
@@ -706,7 +695,9 @@
       return TEXTS.selectTariff;
     }
 
-    return plan.amountStars > 0 ? TEXTS.purchaseLabel(plan.amountStars) : TEXTS.getFree;
+    return plan.amountStars > 0
+      ? TEXTS.purchaseLabel(plan.amountStars)
+      : TEXTS.getFree;
   }
 
   function renderImportGuide() {
@@ -728,10 +719,12 @@
     const accessState = hasConfig
       ? TEXTS.configIssued
       : hasLockedAccess()
-      ? TEXTS.awaitingConfig
-      : TEXTS.notOrdered;
+        ? TEXTS.awaitingConfig
+        : TEXTS.notOrdered;
 
-    els.instructionTitle.textContent = hasConfig ? TEXTS.platformReady(platform.title) : TEXTS.platformWaiting(platform.title);
+    els.instructionTitle.textContent = hasConfig
+      ? TEXTS.platformReady(platform.title)
+      : TEXTS.platformWaiting(platform.title);
     els.instructionBadge.textContent = hasConfig
       ? TEXTS.configReady
       : TEXTS.installFirst;
@@ -748,7 +741,11 @@
 
     els.instructionEmpty.classList.add("hidden");
     els.instructionCard.classList.remove("hidden");
-    setLinkState(els.instructionLink, platform.url, getInstructionLinkLabel(platform));
+    setLinkState(
+      els.instructionLink,
+      platform.url,
+      getInstructionLinkLabel(platform),
+    );
     if (platform.url) {
       els.instructionLink.setAttribute("target", "_blank");
       els.instructionLink.setAttribute("rel", "noreferrer");
@@ -765,12 +762,13 @@
     els.copyButton.disabled = !hasConfig;
     els.qrButton.disabled = !hasConfig;
     els.refreshButton.disabled = telegramLocked;
-    els.buyButton.disabled = telegramLocked || purchaseLocked || !plan || !platform;
+    els.buyButton.disabled =
+      telegramLocked || purchaseLocked || !plan || !platform;
     els.qrButton.textContent = isCompactViewport()
       ? TEXTS.qrButton
       : state.qrVisible
-      ? TEXTS.qrButton
-      : TEXTS.qrButton;
+        ? TEXTS.qrButton
+        : TEXTS.qrButton;
 
     if (telegramLocked) {
       els.buyButton.textContent = TEXTS.openInTelegram;
@@ -813,8 +811,14 @@
     const hasPlanChoices = state.plans.length > 0;
     const hasPlatformChoices = getVisiblePlatforms().length > 0;
 
-    els.plansSection.classList.toggle("hidden-section", purchaseLocked || !hasPlanChoices);
-    els.platformsSection.classList.toggle("hidden-section", purchaseLocked || !hasPlatformChoices);
+    els.plansSection.classList.toggle(
+      "hidden-section",
+      purchaseLocked || !hasPlanChoices,
+    );
+    els.platformsSection.classList.toggle(
+      "hidden-section",
+      purchaseLocked || !hasPlatformChoices,
+    );
     els.actionsSection.classList.toggle("hidden-section", purchaseLocked);
   }
 
@@ -833,10 +837,10 @@
   }
 
   function renderBase() {
-    els.title.textContent = config.app && config.app.title ? config.app.title : TEXTS.title;
-    els.subtitle.textContent = config.app && config.app.subtitle
-      ? config.app.subtitle
-      : TEXTS.subtitle;
+    els.title.textContent =
+      config.app && config.app.title ? config.app.title : TEXTS.title;
+    els.subtitle.textContent =
+      config.app && config.app.subtitle ? config.app.subtitle : TEXTS.subtitle;
 
     if (tg) {
       tg.ready();
@@ -856,17 +860,27 @@
       state.selectedPlatformId = loadSavedPlatformId();
       state.platformRestored = Boolean(state.selectedPlatformId);
     }
-    els.userName.textContent = user.username ? `@${user.username}` : user.first_name || String(user.id);
+    els.userName.textContent = user.username
+      ? `@${user.username}`
+      : user.first_name || String(user.id);
     els.userMeta.textContent = `Telegram ID: ${user.id}`;
   }
 
   function renderDownloads(items) {
-    const list = (items && items.length ? items : state.platforms.length ? state.platforms : getFallbackPlatforms())
+    const list = (
+      items && items.length
+        ? items
+        : state.platforms.length
+          ? state.platforms
+          : getFallbackPlatforms()
+    )
       .map(normalizePlatform)
       .filter(Boolean);
 
     state.platforms = list;
-    const visiblePlatforms = getVisiblePlatforms().length ? getVisiblePlatforms() : list;
+    const visiblePlatforms = getVisiblePlatforms().length
+      ? getVisiblePlatforms()
+      : list;
     els.downloads.innerHTML = "";
 
     visiblePlatforms.forEach(function (item) {
@@ -882,7 +896,9 @@
 
       const link = document.createElement("a");
       link.href = item.url || "#";
-      link.textContent = item.url ? getDownloadLabel(item) : "Ссылка будет добавлена";
+      link.textContent = item.url
+        ? getDownloadLabel(item)
+        : "Ссылка будет добавлена";
       link.target = "_blank";
       link.rel = "noreferrer";
 
@@ -914,9 +930,11 @@
     const platforms = (items && items.length ? items : getFallbackPlatforms())
       .map(normalizePlatform)
       .filter(Boolean);
-    const hasSavedPlatform = state.selectedPlatformId && platforms.some(function (item) {
-      return item.id === state.selectedPlatformId;
-    });
+    const hasSavedPlatform =
+      state.selectedPlatformId &&
+      platforms.some(function (item) {
+        return item.id === state.selectedPlatformId;
+      });
     const visiblePlatforms = hasSavedPlatform
       ? platforms.filter(function (item) {
           return item.id === state.selectedPlatformId;
@@ -960,14 +978,32 @@
       els.platforms.appendChild(card);
     });
 
+    if (hasSavedPlatform) {
+      const resetBtn = document.createElement("button");
+      resetBtn.type = "button";
+      resetBtn.className = "button secondary platform-reset";
+      resetBtn.textContent = "Сменить устройство";
+      resetBtn.addEventListener("click", function () {
+        resetPlatform();
+      });
+      els.platforms.appendChild(resetBtn);
+    }
+
     els.platformHint.textContent = hasSavedPlatform
       ? TEXTS.platformFixed(getCurrentPlatform().title)
       : visiblePlatforms.length
-      ? TEXTS.selectPlatformToInstall
-      : TEXTS.platformsLoading;
+        ? TEXTS.selectPlatformToInstall
+        : TEXTS.platformsLoading;
 
     applyUiState();
     updateActionState();
+  }
+
+  function resetPlatform() {
+    state.selectedPlatformId = "";
+    state.platformRestored = false;
+    savePlatformId("");
+    renderPlatforms(state.platforms);
   }
 
   function selectPlan(planId) {
@@ -981,9 +1017,11 @@
 
     state.selectedPlanId = plan.planId;
 
-    Array.from(els.plans.querySelectorAll(".plan-card")).forEach(function (card) {
-      card.classList.toggle("active", card.dataset.planId === plan.planId);
-    });
+    Array.from(els.plans.querySelectorAll(".plan-card")).forEach(
+      function (card) {
+        card.classList.toggle("active", card.dataset.planId === plan.planId);
+      },
+    );
 
     els.price.textContent = getPriceLabel(plan);
     els.planTitle.textContent = plan.title;
@@ -1054,11 +1092,15 @@
       els.plans.appendChild(card);
     });
 
-    const preferredPlanId = state.selectedPlanId && plans.some(function (plan) {
-      return plan.planId === state.selectedPlanId;
-    })
-      ? state.selectedPlanId
-      : defaultPlanId || (config.app && config.app.defaultPlanId) || (plans[0] && plans[0].planId);
+    const preferredPlanId =
+      state.selectedPlanId &&
+      plans.some(function (plan) {
+        return plan.planId === state.selectedPlanId;
+      })
+        ? state.selectedPlanId
+        : defaultPlanId ||
+          (config.app && config.app.defaultPlanId) ||
+          (plans[0] && plans[0].planId);
 
     if (preferredPlanId) {
       selectPlan(preferredPlanId);
@@ -1087,7 +1129,7 @@
       plan_id: state.selectedPlanId || "",
       platform_id: platform ? platform.id : "",
       platform_title: platform ? platform.title : "",
-      platform_url: platform ? platform.url : ""
+      platform_url: platform ? platform.url : "",
     };
   }
 
@@ -1095,7 +1137,7 @@
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     });
 
     const text = await response.text();
@@ -1151,8 +1193,10 @@
   function renderPendingAccess(data, expiresAt) {
     resetAccessView(
       data.statusLabel || TEXTS.accessPaid,
-      expiresAt ? `Срок доступа уже рассчитан до ${expiresAt}` : TEXTS.accessAwaiting,
-      "Как только сервер выдаст .conf, он появится здесь."
+      expiresAt
+        ? `Срок доступа уже рассчитан до ${expiresAt}`
+        : TEXTS.accessAwaiting,
+      "Как только сервер выдаст .conf, он появится здесь.",
     );
   }
 
@@ -1185,7 +1229,7 @@
       resetAccessView(
         data.statusLabel || TEXTS.accessPendingPayment,
         "Откройте оплату и завершите покупку.",
-        "После оплаты здесь появится статус доступа и конфигурация."
+        "После оплаты здесь появится статус доступа и конфигурация.",
       );
       return;
     }
@@ -1194,7 +1238,7 @@
       resetAccessView(
         data.statusLabel || TEXTS.accessExpired,
         expiresAt ? `Срок закончился: ${expiresAt}` : "Нужна новая покупка.",
-        "Оформите новый тариф, чтобы получить новый конфиг."
+        "Оформите новый тариф, чтобы получить новый конфиг.",
       );
       return;
     }
@@ -1202,7 +1246,7 @@
     resetAccessView(
       data.statusLabel || TEXTS.accessNoActive,
       "После оплаты доступ появится здесь.",
-      "После оплаты здесь появится .conf."
+      "После оплаты здесь появится .conf.",
     );
   }
 
@@ -1228,7 +1272,7 @@
       resetAccessView(
         "Открывайте miniapp через Telegram",
         "Без Telegram initData получить счёт или конфиг нельзя.",
-        "Откройте miniapp кнопкой из бота."
+        "Откройте miniapp кнопкой из бота.",
       );
       return;
     }
@@ -1259,9 +1303,16 @@
       state.platformRestored = false;
     }
 
-    renderPlans(state.plans.length ? state.plans : getFallbackPlans(), state.selectedPlanId || (config.app && config.app.defaultPlanId));
-    renderPlatforms(state.platforms.length ? state.platforms : getFallbackPlatforms());
-    renderDownloads(state.platforms.length ? state.platforms : getFallbackPlatforms());
+    renderPlans(
+      state.plans.length ? state.plans : getFallbackPlans(),
+      state.selectedPlanId || (config.app && config.app.defaultPlanId),
+    );
+    renderPlatforms(
+      state.platforms.length ? state.platforms : getFallbackPlatforms(),
+    );
+    renderDownloads(
+      state.platforms.length ? state.platforms : getFallbackPlatforms(),
+    );
     renderAccess(data.access || data);
   }
 
@@ -1292,10 +1343,15 @@
     state.platformRestored = false;
 
     els.buyButton.disabled = true;
-    els.buyButton.textContent = plan.isFree ? TEXTS.issuingAccess : TEXTS.paymentPreparing;
+    els.buyButton.textContent = plan.isFree
+      ? TEXTS.issuingAccess
+      : TEXTS.paymentPreparing;
 
     try {
-      const data = await postJson(config.api.createInvoiceUrl, getUserPayload());
+      const data = await postJson(
+        config.api.createInvoiceUrl,
+        getUserPayload(),
+      );
 
       if (data.access) {
         renderAccess(data.access);
@@ -1303,7 +1359,11 @@
         return;
       }
 
-      if (tg && typeof tg.openInvoice === "function" && (data.invoiceSlug || data.invoiceUrl)) {
+      if (
+        tg &&
+        typeof tg.openInvoice === "function" &&
+        (data.invoiceSlug || data.invoiceUrl)
+      ) {
         tg.openInvoice(data.invoiceSlug || data.invoiceUrl, function (status) {
           setToast(`Статус оплаты: ${status}`);
           if (status === "paid") {
@@ -1351,22 +1411,26 @@
       return;
     }
 
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(state.configText);
-      setToast(TEXTS.configCopied);
-      return;
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(state.configText);
+        setToast(TEXTS.configCopied);
+      } else {
+        // Fallback для старых браузеров или небезопасных контекстов
+        const textarea = document.createElement("textarea");
+        textarea.value = state.configText;
+        textarea.setAttribute("readonly", "readonly");
+        textarea.style.position = "absolute";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        setToast(TEXTS.configCopied);
+      }
+    } catch (error) {
+      setToast(TEXTS.configCopyFailed);
     }
-
-    const textarea = document.createElement("textarea");
-    textarea.value = state.configText;
-    textarea.setAttribute("readonly", "readonly");
-    textarea.style.position = "absolute";
-    textarea.style.left = "-9999px";
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand("copy");
-    document.body.removeChild(textarea);
-    setToast(TEXTS.configCopied);
   }
 
   async function bootstrap() {
@@ -1403,7 +1467,10 @@
       closeQrModal();
     });
     els.qrModal.addEventListener("click", function (event) {
-      if (event.target === els.qrModal || event.target.dataset.close === "true") {
+      if (
+        event.target === els.qrModal ||
+        event.target.dataset.close === "true"
+      ) {
         closeQrModal();
       }
     });
@@ -1417,9 +1484,11 @@
       resetAccessView(
         "Открывайте miniapp через Telegram",
         "Без Telegram initData оплатить или получить конфиг нельзя.",
-        "Откройте miniapp кнопкой из бота, чтобы тарифы стали активными."
+        "Откройте miniapp кнопкой из бота, чтобы тарифы стали активными.",
       );
-      setToast("Публичную ссылку можно открыть, но рабочий сценарий доступен только из Telegram.");
+      setToast(
+        "Публичную ссылку можно открыть, но рабочий сценарий доступен только из Telegram.",
+      );
       return;
     }
 
