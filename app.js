@@ -6,9 +6,9 @@
   // Словарь текстов для локализации (чтобы избежать проблем с кодировкой в Telegram WebView)
   const TEXTS = {
     // Hero section
-    title: "CreativeAnalytic VPN",
+    title: "CreativeAnalytic \uD83E\uDD8A",
     subtitle:
-      "Telegram-only miniapp \u0434\u043b\u044f \u0432\u044b\u0434\u0430\u0447\u0438 VPN-\u043a\u043e\u043d\u0444\u0438\u0433\u043e\u0432.",
+      "\u0421\u0435\u0440\u0432\u0438\u0441 \u0438\u0437 \u0442\u0440\u0451\u0445 \u0431\u0443\u043a\u0432 \uD83E\uDD8A \u2014 Telegram-only miniapp \u0434\u043b\u044f \u043f\u043e\u043b\u0443\u0447\u0435\u043d\u0438\u044f \u043a\u043e\u043d\u0444\u0438\u0433\u0430.",
     priceLabel:
       "\u0412\u044b\u0431\u0440\u0430\u043d\u043d\u044b\u0439 \u043f\u043b\u0430\u043d",
 
@@ -45,7 +45,8 @@
     // Actions section
     actionsLabel:
       "\u041e\u0444\u043e\u0440\u043c\u043b\u0435\u043d\u0438\u0435",
-    planTitleDefault: "VPN \u043d\u0430 30 \u0434\u043d\u0435\u0439",
+    planTitleDefault:
+      "\u0421\u0435\u0440\u0432\u0438\u0441 \u0438\u0437 \u0442\u0440\u0451\u0445 \u0431\u0443\u043a\u0432 \uD83E\uDD8A \u043d\u0430 30 \u0434\u043d\u0435\u0439",
     planDescription:
       "\u0414\u0435\u0442\u0430\u043b\u0438 \u043f\u043b\u0430\u043d\u0430 \u043f\u043e\u044f\u0432\u044f\u0442\u0441\u044f \u043f\u043e\u0441\u043b\u0435 \u0432\u044b\u0431\u043e\u0440\u0430.",
     targetSummaryDefault:
@@ -134,7 +135,7 @@
       `Доступ подтверждён${platform ? ` \u00b7 ${platform}` : ""}`,
     accessActive: "Доступ активен",
     accessExpired: "Доступ истёк",
-    accessAwaiting: "Ждём выдачу конфигурации новым VPN-сервером.",
+    accessAwaiting: "Ждём выдачу конфигурации.",
     accessPendingPayment: "Счёт создан",
     accessPaid: "Оплата получена",
     accessNoActive: "Нет активного доступа",
@@ -229,7 +230,7 @@
         "Нажмите «Открыть QR» или скачайте .conf / .txt.",
         "В AmneziaVPN выберите добавление или импорт конфигурации.",
         "Отсканируйте QR либо выберите файл / вставьте текст.",
-        "Сохраните профиль и включите VPN.",
+        "Сохраните профиль и включите сервис.",
       ],
     },
     iphone: {
@@ -406,7 +407,9 @@
 
     return {
       planId: String(plan.planId),
-      title: String(plan.title || "VPN доступ"),
+      title: String(
+        plan.title || "\u0414\u043e\u0441\u0442\u0443\u043f \uD83E\uDD8A",
+      ),
       description: String(plan.description || ""),
       amountStars,
       durationDays,
