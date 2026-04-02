@@ -1509,9 +1509,15 @@
         getUserPayload(),
       );
 
+      if (data.error === "active_access_exists") {
+        setToast("\u0414\u043e\u0441\u0442\u0443\u043f \u0443\u0436\u0435 \u0435\u0441\u0442\u044c \u2014 \u043e\u0431\u043d\u043e\u0432\u0438\u0442\u0435 \u0441\u0442\u0430\u0442\u0443\u0441");
+        loadStatus().catch(function () {});
+        return;
+      }
+
       if (data.access) {
         renderAccess(data.access);
-        setToast(data.message || `Доступ готов для ${platform.title}`);
+        setToast(data.message || "\u0414\u043e\u0441\u0442\u0443\u043f \u0433\u043e\u0442\u043e\u0432");
         return;
       }
 
@@ -1523,9 +1529,22 @@
 
       if (tg && typeof tg.openInvoice === "function" && invoiceLink) {
         tg.openInvoice(invoiceLink, function (status) {
-          setToast(`Статус оплаты: ${status}`);
           if (status === "paid") {
-            loadStatus().catch(function () {});
+            setToast("\u041e\u043f\u043b\u0430\u0447\u0435\u043d\u043e \u2014 \u043f\u043e\u043b\u0443\u0447\u0430\u0435\u043c \u043a\u043e\u043d\u0444\u0438\u0433...");
+            var attempts = 0;
+            function pollStatus() {
+              loadStatus().catch(function () {}).finally(function () {
+                attempts++;
+                if (attempts < 10 && !state.configText) {
+                  setTimeout(pollStatus, 3000);
+                }
+              });
+            }
+            pollStatus();
+          } else if (status === "cancelled") {
+            setToast("\u041e\u043f\u043b\u0430\u0442\u0430 \u043e\u0442\u043c\u0435\u043d\u0435\u043d\u0430");
+          } else if (status === "failed") {
+            setToast("\u041e\u0448\u0438\u0431\u043a\u0430 \u043e\u043f\u043b\u0430\u0442\u044b \u2014 \u043f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u0435\u0449\u0451 \u0440\u0430\u0437");
           }
         });
         return;
@@ -1540,7 +1559,7 @@
         return;
       }
 
-      throw new Error("Сервис не вернул ссылку на оплату или готовый доступ");
+      throw new Error("\u0421\u0435\u0440\u0432\u0438\u0441 \u043d\u0435 \u0432\u0435\u0440\u043d\u0443\u043b \u0441\u0441\u044b\u043b\u043a\u0443 \u043d\u0430 \u043e\u043f\u043b\u0430\u0442\u0443");
     } catch (error) {
       setToast(error.message || "Не удалось создать доступ");
     } finally {
