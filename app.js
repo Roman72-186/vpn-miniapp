@@ -1440,6 +1440,7 @@
     }
 
     const data = await postJson(config.api.catalogUrl, getUserPayload());
+    state.trialUsed = Boolean(data.trialUsed);
     const rawPlans = (data.plans || (data.plan ? [data.plan] : []))
       .map(normalizePlan)
       .filter(Boolean);
@@ -1470,11 +1471,10 @@
     state.trialUsed = Boolean(data.trialUsed);
 
     if (
-      data.access &&
-      (data.access.isActive ||
-        data.access.is_active ||
-        data.access.status === "awaiting_issue" ||
-        data.access.status === "pending_payment")
+      data.isActive ||
+      data.is_active ||
+      data.status === "awaiting_issue" ||
+      data.status === "pending_payment"
     ) {
       if (state.selectedPlatformId) {
         savePlatformId(state.selectedPlatformId);
@@ -1579,7 +1579,7 @@
             function pollStatus() {
               loadStatus().catch(function () {}).finally(function () {
                 attempts++;
-                if (attempts < 10 && !state.configText) {
+                if (attempts < 20 && !state.configText) {
                   setTimeout(pollStatus, 3000);
                 }
               });
