@@ -717,9 +717,11 @@
       return;
     }
 
+    const platform = getCurrentPlatform();
+    const isDefaultVpnPlatform = platform && (platform.id === "iphone" || platform.id === "ipad");
     const baseName = buildFileBaseName();
 
-    if (state.iphoneConfigUri) {
+    if (isDefaultVpnPlatform && state.iphoneConfigUri) {
       setLinkState(
         els.downloadLink,
         state.iphoneConfigUri,
@@ -762,7 +764,11 @@
 
   function renderQrCanvas(canvas, size, onSuccess) {
     const platform = getCurrentPlatform();
-    const qrData = state.iphoneConfigUri || state.configText;
+    const platform = getCurrentPlatform();
+    const isDefaultVpnPlatform = platform && (platform.id === "iphone" || platform.id === "ipad");
+    const qrData = (isDefaultVpnPlatform && state.iphoneConfigUri)
+      ? state.iphoneConfigUri
+      : state.configText;
     if (
       !qrData ||
       !window.QRCode ||
