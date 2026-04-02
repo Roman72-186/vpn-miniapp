@@ -717,16 +717,14 @@
       return;
     }
 
-    const platform = getCurrentPlatform();
-    const isIphone = platform && platform.id === "iphone";
+    const baseName = buildFileBaseName();
 
-    if (isIphone && state.iphoneConfigUri) {
+    if (state.iphoneConfigUri) {
       setLinkState(
         els.downloadLink,
         state.iphoneConfigUri,
         "\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0432 DefaultVPN",
       );
-      const baseName = buildFileBaseName();
       const txtBlob = new Blob([configText], { type: "text/plain;charset=utf-8" });
       state.textDownloadUrl = window.URL.createObjectURL(txtBlob);
       setLinkState(
@@ -738,7 +736,6 @@
       return;
     }
 
-    const baseName = buildFileBaseName();
     const confBlob = new Blob([configText], {
       type: "text/plain;charset=utf-8",
     });
@@ -765,9 +762,7 @@
 
   function renderQrCanvas(canvas, size, onSuccess) {
     const platform = getCurrentPlatform();
-    const qrData = (platform && platform.id === "iphone" && state.iphoneConfigUri)
-      ? state.iphoneConfigUri
-      : state.configText;
+    const qrData = state.iphoneConfigUri || state.configText;
     if (
       !qrData ||
       !window.QRCode ||
