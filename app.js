@@ -235,19 +235,18 @@
     },
     iphone: {
       waitingSummary:
-        "Для iPhone сначала откройте инструкцию по установке Amnezia, затем возвращайтесь сюда за конфигом.",
+        "\u0414\u043b\u044f iPhone \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u0438\u0442\u0435 DefaultVPN \u0438\u0437 App Store, \u0437\u0430\u0442\u0435\u043c \u0432\u0435\u0440\u043d\u0438\u0442\u0435\u0441\u044c \u0441\u044e\u0434\u0430 \u0437\u0430 \u043a\u043e\u043d\u0444\u0438\u0433\u043e\u043c.",
       readySummary:
-        "На iPhone обычно удобнее скачать .conf или .txt, а QR открыть на другом экране, если он нужен.",
+        "\u041a\u043e\u043d\u0444\u0438\u0433 \u0433\u043e\u0442\u043e\u0432! \u041d\u0430\u0436\u043c\u0438\u0442\u0435 \u00ab\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0432 DefaultVPN\u00bb \u2014 \u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 \u0437\u0430\u0433\u0440\u0443\u0437\u044f\u0442\u0441\u044f \u0430\u0432\u0442\u043e\u043c\u0430\u0442\u0438\u0447\u0435\u0441\u043a\u0438.",
       waitingSteps: [
-        "Откройте инструкцию ниже и установите Amnezia на iPhone.",
-        "Вернитесь в miniapp и получите пробный или платный доступ.",
-        "Когда конфиг появится, скачайте .conf / .txt или откройте QR на другом устройстве.",
+        "\u0423\u0441\u0442\u0430\u043d\u043e\u0432\u0438\u0442\u0435 DefaultVPN \u0438\u0437 App Store \u043f\u043e \u0441\u0441\u044b\u043b\u043a\u0435 \u043d\u0438\u0436\u0435.",
+        "\u0412\u0435\u0440\u043d\u0438\u0442\u0435\u0441\u044c \u0432 miniapp \u0438 \u043e\u0444\u043e\u0440\u043c\u0438\u0442\u0435 \u0434\u043e\u0441\u0442\u0443\u043f.",
+        "\u041d\u0430\u0436\u043c\u0438\u0442\u0435 \u00ab\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0432 DefaultVPN\u00bb \u2014 \u043a\u043e\u043d\u0444\u0438\u0433 \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u0441\u044f \u043e\u0434\u043d\u0438\u043c \u043d\u0430\u0436\u0430\u0442\u0438\u0435\u043c.",
       ],
       readySteps: [
-        "Скачайте .conf или .txt из блока «Конфиг».",
-        "Откройте Amnezia и выберите импорт конфигурации.",
-        "Выберите файл в приложении «Файлы» или вставьте текст вручную.",
-        "Сохраните профиль и подключитесь.",
+        "\u041d\u0430\u0436\u043c\u0438\u0442\u0435 \u00ab\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0432 DefaultVPN\u00bb \u043d\u0438\u0436\u0435.",
+        "\u041f\u043e\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u0435 \u0438\u043c\u043f\u043e\u0440\u0442 \u0432 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0438 DefaultVPN.",
+        "\u0412\u043a\u043b\u044e\u0447\u0438\u0442\u0435 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0435 \u0432 DefaultVPN.",
       ],
     },
     ipad: {
@@ -348,6 +347,7 @@
 
   const state = {
     configText: "",
+    iphoneConfigUri: "",
     plans: [],
     platforms: [],
     selectedPlanId: "",
@@ -717,6 +717,27 @@
       return;
     }
 
+    const platform = getCurrentPlatform();
+    const isIphone = platform && platform.id === "iphone";
+
+    if (isIphone && state.iphoneConfigUri) {
+      setLinkState(
+        els.downloadLink,
+        state.iphoneConfigUri,
+        "\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0432 DefaultVPN",
+      );
+      const baseName = buildFileBaseName();
+      const txtBlob = new Blob([configText], { type: "text/plain;charset=utf-8" });
+      state.textDownloadUrl = window.URL.createObjectURL(txtBlob);
+      setLinkState(
+        els.downloadTextLink,
+        state.textDownloadUrl,
+        TEXTS.downloadTxt,
+        `${baseName}.txt`,
+      );
+      return;
+    }
+
     const baseName = buildFileBaseName();
     const confBlob = new Blob([configText], {
       type: "text/plain;charset=utf-8",
@@ -743,8 +764,12 @@
   }
 
   function renderQrCanvas(canvas, size, onSuccess) {
+    const platform = getCurrentPlatform();
+    const qrData = (platform && platform.id === "iphone" && state.iphoneConfigUri)
+      ? state.iphoneConfigUri
+      : state.configText;
     if (
-      !state.configText ||
+      !qrData ||
       !window.QRCode ||
       typeof window.QRCode.toCanvas !== "function"
     ) {
@@ -754,7 +779,7 @@
 
     window.QRCode.toCanvas(
       canvas,
-      state.configText,
+      qrData,
       {
         width: size,
         margin: 1,
@@ -977,6 +1002,7 @@
 
   function resetAccessView(message, meta, boxText) {
     state.configText = "";
+    state.iphoneConfigUri = "";
     hideQr();
     closeQrModal();
     clearGeneratedDownloads();
@@ -1315,9 +1341,11 @@
     const ip = data.ipAddress || data.ip_address || "IP не указан";
     const configText = data.configText || data.config_text || "";
     const configFileUrl = data.configFileUrl || data.config_file_url || "";
+    const iphoneConfigUri = data.iphoneConfigUri || data.iphone_config_uri || "";
     const platform = getCurrentPlatform();
 
     state.configText = configText;
+    state.iphoneConfigUri = iphoneConfigUri;
     els.accessStatus.textContent = TEXTS.accessActive;
     els.accessMeta.textContent = expiresAt
       ? TEXTS.accessExpires(expiresAt, platform ? platform.title : "")
