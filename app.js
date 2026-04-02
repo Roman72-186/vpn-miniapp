@@ -1521,6 +1521,22 @@
         return;
       }
 
+      // Бесплатный тариф: конфиг выдан сразу (ok: true, configText: "...")
+      if (data.ok && data.configText) {
+        setToast("\u0414\u043e\u0441\u0442\u0443\u043f \u0432\u044b\u0434\u0430\u043d \u2014 \u0437\u0430\u0433\u0440\u0443\u0436\u0430\u0435\u043c...");
+        var attempts = 0;
+        function pollFreeStatus() {
+          loadStatus().catch(function () {}).finally(function () {
+            attempts++;
+            if (attempts < 10 && !state.configText) {
+              setTimeout(pollFreeStatus, 2000);
+            }
+          });
+        }
+        pollFreeStatus();
+        return;
+      }
+
       const invoiceLink =
         data.invoiceSlug ||
         data.invoiceUrl ||
