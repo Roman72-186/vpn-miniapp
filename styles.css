@@ -652,3 +652,76 @@ body.modal-open {
     padding: 14px;
   }
 }
+
+/* ── Admin panel ─────────────────────────────────────────── */
+
+.admin-input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+  margin: 8px 0 4px;
+  outline: none;
+}
+
+.admin-input:focus {
+  border-color: rgba(56, 211, 159, 0.5);
+}
+
+.admin-error {
+  color: #ff7070;
+  font-size: 13px;
+  margin: 4px 0 8px;
+}
+
+.admin-hint {
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.admin-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.admin-price-row:last-child {
+  border-bottom: none;
+}
+
+.admin-price-label {
+  font-size: 14px;
+  color: var(--text);
+  flex: 1;
+}
+
+.admin-price-label small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.admin-price-input {
+  width: 90px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+  text-align: right;
+  outline: none;
+}
+
+.admin-price-input:focus {
+  border-color: rgba(56, 211, 159, 0.5);
+}

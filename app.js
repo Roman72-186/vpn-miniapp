@@ -331,6 +331,19 @@
     qrModalTitle: document.getElementById("qr-modal-title"),
     qrModalClose: document.getElementById("qr-modal-close"),
     toast: document.getElementById("toast"),
+    // Admin
+    adminPasswordModal: document.getElementById("admin-password-modal"),
+    adminPasswordInput: document.getElementById("admin-password-input"),
+    adminPasswordError: document.getElementById("admin-password-error"),
+    adminPasswordSubmit: document.getElementById("admin-password-submit"),
+    adminPasswordCancel: document.getElementById("admin-password-cancel"),
+    adminPwdBackdrop: document.getElementById("admin-pwd-backdrop"),
+    adminPanelModal: document.getElementById("admin-panel-modal"),
+    adminPanelClose: document.getElementById("admin-panel-close"),
+    adminPanelBackdrop: document.getElementById("admin-panel-backdrop"),
+    adminPricesList: document.getElementById("admin-prices-list"),
+    adminSave: document.getElementById("admin-save"),
+    adminReset: document.getElementById("admin-reset"),
   };
 
   const state = {
@@ -397,6 +410,142 @@
     }
   }
 
+  // ── Admin: price overrides ────────────────────────────────
+
+  var ADMIN_PRICES_KEY = "ca-admin-prices";
+  var ADMIN_PASSWORD = "123456";
+
+  function getAdminPriceOverrides() {
+    try {
+      var saved =
+        window.localStorage && window.localStorage.getItem(ADMIN_PRICES_KEY);
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function applyAdminPriceOverrides(plans) {
+    var overrides = getAdminPriceOverrides();
+    if (!Object.keys(overrides).length) return plans;
+    return plans.map(function (p) {
+      if (overrides[p.planId] === undefined) return p;
+      var stars = Number(overrides[p.planId]);
+      return Object.assign({}, p, {
+        amountStars: stars,
+        isFree: stars === 0,
+        badge:
+          stars === 0
+            ? "\u0411\u0435\u0441\u043f\u043b\u0430\u0442\u043d\u043e"
+            : stars + " Stars",
+      });
+    });
+  }
+
+  function openAdminPassword() {
+    els.adminPasswordInput.value = "";
+    els.adminPasswordError.classList.add("hidden");
+    els.adminPasswordModal.classList.remove("hidden");
+    document.body.classList.add("modal-open");
+    setTimeout(function () {
+      els.adminPasswordInput.focus();
+    }, 100);
+  }
+
+  function closeAdminPassword() {
+    els.adminPasswordModal.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+  }
+
+  function openAdminPanel() {
+    var overrides = getAdminPriceOverrides();
+    var allPlans = (config.plans || [])
+      .map(normalizePlan)
+      .filter(Boolean)
+      .filter(function (p) {
+        return !p.isFree;
+      });
+    els.adminPricesList.innerHTML = "";
+    allPlans.forEach(function (plan) {
+      var row = document.createElement("div");
+      row.className = "admin-price-row";
+      var label = document.createElement("div");
+      label.className = "admin-price-label";
+      label.innerHTML =
+        "<strong>" +
+        plan.title +
+        "</strong><small>" +
+        plan.durationDays +
+        " \u0434\u043d\u0435\u0439</small>";
+      var input = document.createElement("input");
+      input.type = "number";
+      input.min = "1";
+      input.max = "10000";
+      input.className = "admin-price-input";
+      input.dataset.planId = plan.planId;
+      input.value =
+        overrides[plan.planId] !== undefined
+          ? overrides[plan.planId]
+          : plan.amountStars;
+      row.appendChild(label);
+      row.appendChild(input);
+      els.adminPricesList.appendChild(row);
+    });
+    els.adminPanelModal.classList.remove("hidden");
+    document.body.classList.add("modal-open");
+  }
+
+  function closeAdminPanel() {
+    els.adminPanelModal.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+  }
+
+  function saveAdminPrices() {
+    var inputs = els.adminPricesList.querySelectorAll(".admin-price-input");
+    var overrides = {};
+    inputs.forEach(function (input) {
+      var val = parseInt(input.value, 10);
+      if (!isNaN(val) && val >= 0) {
+        overrides[input.dataset.planId] = val;
+      }
+    });
+    try {
+      window.localStorage &&
+        window.localStorage.setItem(
+          ADMIN_PRICES_KEY,
+          JSON.stringify(overrides),
+        );
+    } catch (e) {}
+    closeAdminPanel();
+    // Перерисовать планы с новыми ценами
+    var raw = (config.plans || []).map(normalizePlan).filter(Boolean);
+    var updated = applyAdminPriceOverrides(raw);
+    renderPlans(
+      updated,
+      state.selectedPlanId || (config.app && config.app.defaultPlanId),
+    );
+    setToast(
+      "\u0426\u0435\u043d\u044b \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u044b",
+    );
+  }
+
+  function resetAdminPrices() {
+    try {
+      window.localStorage && window.localStorage.removeItem(ADMIN_PRICES_KEY);
+    } catch (e) {}
+    closeAdminPanel();
+    var raw = (config.plans || []).map(normalizePlan).filter(Boolean);
+    renderPlans(
+      raw,
+      state.selectedPlanId || (config.app && config.app.defaultPlanId),
+    );
+    setToast(
+      "\u0426\u0435\u043d\u044b \u0441\u0431\u0440\u043e\u0448\u0435\u043d\u044b",
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────
+
   function normalizePlan(plan) {
     if (!plan || !plan.planId) {
       return null;
@@ -421,7 +570,8 @@
   }
 
   function getFallbackPlans() {
-    return (config.plans || []).map(normalizePlan).filter(Boolean);
+    var raw = (config.plans || []).map(normalizePlan).filter(Boolean);
+    return applyAdminPriceOverrides(raw);
   }
 
   function getCurrentPlan() {
@@ -1262,7 +1412,10 @@
     }
 
     const data = await postJson(config.api.catalogUrl, getUserPayload());
-    const plans = data.plans || (data.plan ? [data.plan] : []);
+    const rawPlans = (data.plans || (data.plan ? [data.plan] : []))
+      .map(normalizePlan)
+      .filter(Boolean);
+    const plans = applyAdminPriceOverrides(rawPlans);
     const downloads = data.downloads || [];
 
     renderPlans(plans, data.defaultPlanId);
@@ -1482,6 +1635,45 @@
         setToast(TEXTS.configCopyFailed);
       });
     });
+
+    // Admin: triple-tap on title
+    var titleTapCount = 0;
+    var titleTapTimer = null;
+    els.title.addEventListener("click", function () {
+      titleTapCount++;
+      clearTimeout(titleTapTimer);
+      if (titleTapCount >= 3) {
+        titleTapCount = 0;
+        openAdminPassword();
+      } else {
+        titleTapTimer = setTimeout(function () {
+          titleTapCount = 0;
+        }, 600);
+      }
+    });
+
+    // Admin: password modal
+    els.adminPasswordSubmit.addEventListener("click", function () {
+      if (els.adminPasswordInput.value === ADMIN_PASSWORD) {
+        closeAdminPassword();
+        openAdminPanel();
+      } else {
+        els.adminPasswordError.classList.remove("hidden");
+        els.adminPasswordInput.value = "";
+        els.adminPasswordInput.focus();
+      }
+    });
+    els.adminPasswordInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") els.adminPasswordSubmit.click();
+    });
+    els.adminPasswordCancel.addEventListener("click", closeAdminPassword);
+    els.adminPwdBackdrop.addEventListener("click", closeAdminPassword);
+
+    // Admin: panel
+    els.adminPanelClose.addEventListener("click", closeAdminPanel);
+    els.adminPanelBackdrop.addEventListener("click", closeAdminPanel);
+    els.adminSave.addEventListener("click", saveAdminPrices);
+    els.adminReset.addEventListener("click", resetAdminPrices);
 
     if (!hasTelegramContext()) {
       resetAccessView(

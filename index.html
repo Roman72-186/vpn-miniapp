@@ -14,10 +14,10 @@
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260401-5" />
+    <link rel="stylesheet" href="./styles.css?v=20260401-6" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
-    <script src="./config.js?v=20260401-5"></script>
+    <script src="./config.js?v=20260401-6"></script>
   </head>
   <body>
     <main class="app">
@@ -317,6 +317,78 @@
       </div>
     </div>
 
-    <script src="./app.js?v=20260401-5"></script>
+    <script src="./app.js?v=20260401-6"></script>
+
+    <!-- Admin: password prompt -->
+    <div
+      id="admin-password-modal"
+      class="qr-modal hidden"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div class="qr-modal-backdrop" id="admin-pwd-backdrop"></div>
+      <div class="qr-modal-panel" style="max-width: 340px">
+        <p class="eyebrow">Доступ</p>
+        <h2>Введите пароль</h2>
+        <input
+          id="admin-password-input"
+          type="password"
+          class="admin-input"
+          placeholder="Пароль"
+          autocomplete="off"
+        />
+        <p id="admin-password-error" class="admin-error hidden">
+          Неверный пароль
+        </p>
+        <div class="buttons" style="margin-top: 12px">
+          <button
+            id="admin-password-submit"
+            class="button primary"
+            type="button"
+          >
+            Войти
+          </button>
+          <button
+            id="admin-password-cancel"
+            class="button secondary"
+            type="button"
+          >
+            Отмена
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin: price editor -->
+    <div
+      id="admin-panel-modal"
+      class="qr-modal hidden"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div class="qr-modal-backdrop" id="admin-panel-backdrop"></div>
+      <div class="qr-modal-panel">
+        <button
+          id="admin-panel-close"
+          class="qr-close"
+          type="button"
+          aria-label="Close"
+        >
+          x
+        </button>
+        <p class="eyebrow">Настройки 🦊</p>
+        <h2>Цены на тарифы</h2>
+        <div id="admin-prices-list"></div>
+        <p class="muted admin-hint">Цены в Telegram Stars. 0 = бесплатно.</p>
+        <div class="buttons" style="margin-top: 16px">
+          <button id="admin-save" class="button primary" type="button">
+            Сохранить
+          </button>
+          <button id="admin-reset" class="button secondary" type="button">
+            Сбросить
+          </button>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
