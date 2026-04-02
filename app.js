@@ -764,7 +764,6 @@
 
   function renderQrCanvas(canvas, size, onSuccess) {
     const platform = getCurrentPlatform();
-    const platform = getCurrentPlatform();
     const isDefaultVpnPlatform = platform && (platform.id === "iphone" || platform.id === "ipad");
     const qrData = (isDefaultVpnPlatform && state.iphoneConfigUri)
       ? state.iphoneConfigUri
