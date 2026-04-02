@@ -1515,12 +1515,14 @@
         return;
       }
 
-      if (
-        tg &&
-        typeof tg.openInvoice === "function" &&
-        (data.invoiceSlug || data.invoiceUrl)
-      ) {
-        tg.openInvoice(data.invoiceSlug || data.invoiceUrl, function (status) {
+      const invoiceLink =
+        data.invoiceSlug ||
+        data.invoiceUrl ||
+        data.invoice_slug ||
+        data.invoice_url;
+
+      if (tg && typeof tg.openInvoice === "function" && invoiceLink) {
+        tg.openInvoice(invoiceLink, function (status) {
           setToast(`Статус оплаты: ${status}`);
           if (status === "paid") {
             loadStatus().catch(function () {});
@@ -1529,8 +1531,12 @@
         return;
       }
 
-      if (data.invoiceUrl) {
-        window.open(data.invoiceUrl, "_blank", "noopener,noreferrer");
+      if (data.invoiceUrl || data.invoice_url) {
+        window.open(
+          data.invoiceUrl || data.invoice_url,
+          "_blank",
+          "noopener,noreferrer",
+        );
         return;
       }
 
