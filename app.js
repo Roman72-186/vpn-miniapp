@@ -1269,17 +1269,12 @@
         badge.className = "plan-badge";
         badge.textContent = plan.badge;
 
-        const meta = document.createElement("div");
-        meta.className = "plan-meta";
-        meta.innerHTML = `<span>${plan.durationDays} \u0434\u043d.</span><span>${getPriceLabel(plan)}</span>`;
-
         titleWrap.appendChild(title);
         titleWrap.appendChild(description);
         titleRow.appendChild(titleWrap);
         titleRow.appendChild(badge);
 
         card.appendChild(titleRow);
-        card.appendChild(meta);
       }
 
       card.addEventListener("click", function () {

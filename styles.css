@@ -236,29 +236,24 @@ h2 { font-size: clamp(16px, 3vw, 22px); font-weight: 700; }
 
 .plan-card strong { font-size: 15px; font-weight: 700; }
 
-/* Free plan — full width, centered БЕСПЛАТНО */
+/* Free plan — full width, vertically centered */
 .plan-card.plan--free {
   grid-column: 1 / -1;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  flex-direction: row;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  gap: 8px;
 }
 
 .plan-card.plan--free .plan-free-label {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--accent);
   text-shadow: 0 0 18px var(--accent-glow);
-  white-space: nowrap;
-}
-
-.plan-card.plan--free .plan-meta {
-  flex-direction: row;
-  align-items: center;
 }
 
 .plan-meta {
