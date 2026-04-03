@@ -752,8 +752,8 @@ body.modal-open { overflow: hidden; }
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  /* Тарифы — 1 колонка (на узком экране удобнее читать) */
-  .plan-list { grid-template-columns: 1fr; }
+  /* Тарифы — 2 колонки: бесплатно на всю ширину, платные рядом */
+  .plan-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
   /* Устройства и Загрузки — 2×2 */
   .platform-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }

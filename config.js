@@ -61,15 +61,9 @@
     },
     {
       id: "iphone",
-      title: "iPhone",
-      description: "Приложение для iPhone (App Store)",
+      title: "iPhone / iPad",
+      description: "Приложение для iPhone и iPad (App Store)",
       url: "https://apps.apple.com/ru/app/defaultvpn/id6744725017",
-    },
-    {
-      id: "ipad",
-      title: "iPad",
-      description: "Инструкция Amnezia по установке на iPad",
-      url: "https://docs.amnezia.org/documentation/instructions/installing-amneziavpn-on-ios/",
     },
   ],
 };
