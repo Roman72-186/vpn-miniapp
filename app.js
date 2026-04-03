@@ -1892,10 +1892,19 @@
       });
     });
 
-    // Admin: hidden trigger button (top-right corner of hero)
+    // Admin: hidden trigger button (top-right corner of hero) — 5 taps
     if (els.adminTrigger) {
+      var adminTapCount = 0;
+      var adminTapTimer = null;
       els.adminTrigger.addEventListener("click", function () {
-        openAdminPassword();
+        adminTapCount++;
+        clearTimeout(adminTapTimer);
+        if (adminTapCount >= 5) {
+          adminTapCount = 0;
+          openAdminPassword();
+        } else {
+          adminTapTimer = setTimeout(function () { adminTapCount = 0; }, 1500);
+        }
       });
     }
 
