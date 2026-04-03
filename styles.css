@@ -664,20 +664,35 @@ body.modal-open { overflow: hidden; }
   }
 }
 
-/* ── Tablet ───────────────────────────────────────────────── */
+/* ── Tablet / Mobile (< 780px) ────────────────────────────── */
 @media (max-width: 779px) {
   .hero, .actions {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .grid { grid-template-columns: 1fr; }
+  /* Пользователь + Доступ — 2 колонки */
+  .grid:not(.wide) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
+  /* Загрузки + Конфиг — стек (конфиг под загрузками) */
+  .grid.wide {
+    grid-template-columns: 1fr;
+  }
+
+  /* Тарифы — 2 колонки */
   .plan-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  /* Устройства — 2×2 */
   .platform-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Загрузки — 2×2 */
+  .download-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -692,7 +707,7 @@ body.modal-open { overflow: hidden; }
   }
 }
 
-/* ── Mobile ───────────────────────────────────────────────── */
+/* ── Mobile (< 520px) ─────────────────────────────────────── */
 @media (max-width: 520px) {
   .app {
     padding: 10px 8px 24px;
@@ -709,8 +724,17 @@ body.modal-open { overflow: hidden; }
   .buttons { flex-direction: column; }
   .button { width: 100%; }
 
+  /* Пользователь + Доступ — 2 колонки (сохраняем) */
+  .grid:not(.wide) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Тарифы — 1 колонка (на узком экране удобнее читать) */
   .plan-list { grid-template-columns: 1fr; }
+
+  /* Устройства и Загрузки — 2×2 */
   .platform-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .download-list  { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
   .config-actions .button { flex-basis: auto; }
 
