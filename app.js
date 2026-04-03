@@ -1566,10 +1566,10 @@
       }
 
       const invoiceLink =
-        data.invoiceSlug ||
         data.invoiceUrl ||
-        data.invoice_slug ||
-        data.invoice_url;
+        data.invoice_url ||
+        data.invoiceSlug ||
+        data.invoice_slug;
 
       if (tg && typeof tg.openInvoice === "function" && invoiceLink) {
         tg.openInvoice(invoiceLink, function (status) {
