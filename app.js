@@ -696,11 +696,18 @@
   }
 
   function saveAdminPrices() {
+    // Убираем фокус с поля ввода — скрываем клавиатуру до закрытия модалки,
+    // иначе Telegram на мобильном интерпретирует прыжок страницы как жест закрытия.
+    if (document.activeElement && document.activeElement.blur) {
+      document.activeElement.blur();
+    }
     var inputs = els.adminPricesList.querySelectorAll(".admin-price-input");
     var overrides = {};
     inputs.forEach(function (input) {
       var val = parseInt(input.value, 10);
-      if (!isNaN(val) && val >= 0) {
+      // Только положительные значения: 0 сделало бы платный тариф "бесплатным"
+      // и он бы фильтровался, если пробный уже использован.
+      if (!isNaN(val) && val > 0) {
         overrides[input.dataset.planId] = val;
       }
     });
