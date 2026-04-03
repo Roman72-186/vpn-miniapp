@@ -343,6 +343,19 @@
     adminPricesList: document.getElementById("admin-prices-list"),
     adminSave: document.getElementById("admin-save"),
     adminReset: document.getElementById("admin-reset"),
+    adminTabPrices: document.getElementById("admin-tab-prices"),
+    adminTabUsers: document.getElementById("admin-tab-users"),
+    adminTabStats: document.getElementById("admin-tab-stats"),
+    adminTabIssue: document.getElementById("admin-tab-issue"),
+    adminUsersList: document.getElementById("admin-users-list"),
+    adminUsersRefresh: document.getElementById("admin-users-refresh"),
+    adminStatsGrid: document.getElementById("admin-stats-grid"),
+    adminStatsRefresh: document.getElementById("admin-stats-refresh"),
+    adminIssueUserId: document.getElementById("admin-issue-userid"),
+    adminIssueUsername: document.getElementById("admin-issue-username"),
+    adminIssuePlan: document.getElementById("admin-issue-plan"),
+    adminIssueSubmit: document.getElementById("admin-issue-submit"),
+    adminIssueStatus: document.getElementById("admin-issue-status"),
   };
 
   const state = {
@@ -457,7 +470,188 @@
     document.body.classList.remove("modal-open");
   }
 
+  function switchAdminTab(tab) {
+    document.querySelectorAll(".admin-tab").forEach(function (btn) {
+      btn.classList.toggle("active", btn.dataset.tab === tab);
+    });
+    ["prices", "users", "stats", "issue"].forEach(function (t) {
+      var el = document.getElementById("admin-tab-" + t);
+      if (el) el.classList.toggle("hidden", t !== tab);
+    });
+  }
+
+  var ADMIN_URL = (config.api && config.api.adminUrl) || "";
+
+  function callAdminApi(action, params) {
+    if (!ADMIN_URL) return Promise.reject(new Error("adminUrl not set"));
+    return fetch(ADMIN_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(
+        Object.assign({ action: action, admin_password: ADMIN_PASSWORD }, params || {})
+      ),
+    }).then(function (r) {
+      return r.json();
+    });
+  }
+
+  function loadAdminStats() {
+    if (!els.adminStatsGrid) return;
+    els.adminStatsGrid.innerHTML =
+      '<p class="muted">\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430...</p>';
+    callAdminApi("stats")
+      .then(function (data) {
+        if (!data.ok) {
+          els.adminStatsGrid.innerHTML = '<p class="muted">\u041e\u0448\u0438\u0431\u043a\u0430</p>';
+          return;
+        }
+        var s = data.stats || {};
+        els.adminStatsGrid.innerHTML =
+          '<div class="admin-stat-card"><div class="admin-stat-num">' +
+          (s.active_configs || 0) +
+          '</div><div class="admin-stat-label">\u0410\u043a\u0442\u0438\u0432\u043d\u044b\u0445</div></div>' +
+          '<div class="admin-stat-card"><div class="admin-stat-num">' +
+          (s.total_orders || 0) +
+          '</div><div class="admin-stat-label">\u0417\u0430\u043a\u0430\u0437\u043e\u0432</div></div>' +
+          '<div class="admin-stat-card"><div class="admin-stat-num">' +
+          (s.total_stars || 0) +
+          ' \u2b50</div><div class="admin-stat-label">\u0412\u044b\u0440\u0443\u0447\u043a\u0430</div></div>';
+      })
+      .catch(function () {
+        if (els.adminStatsGrid)
+          els.adminStatsGrid.innerHTML = '<p class="muted">\u041e\u0448\u0438\u0431\u043a\u0430 \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0438</p>';
+      });
+  }
+
+  function loadAdminUsers() {
+    if (!els.adminUsersList) return;
+    els.adminUsersList.innerHTML =
+      '<p class="muted">\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430...</p>';
+    callAdminApi("users")
+      .then(function (data) {
+        if (!data.ok) {
+          els.adminUsersList.innerHTML = '<p class="muted">\u041e\u0448\u0438\u0431\u043a\u0430</p>';
+          return;
+        }
+        if (!data.users || !data.users.length) {
+          els.adminUsersList.innerHTML =
+            '<p class="muted">\u041d\u0435\u0442 \u0430\u043a\u0442\u0438\u0432\u043d\u044b\u0445 \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u0435\u0439</p>';
+          return;
+        }
+        els.adminUsersList.innerHTML = "";
+        data.users.forEach(function (u) {
+          var exp = u.expires_at
+            ? new Date(u.expires_at).toLocaleDateString("ru-RU")
+            : "\u2014";
+          var name = u.username || u.first_name || String(u.user_id);
+          var row = document.createElement("div");
+          row.className = "admin-user-row";
+          row.innerHTML =
+            '<div class="admin-user-info">' +
+            "<strong>" +
+            name +
+            "</strong>" +
+            "<small>" +
+            (u.plan_id || "") +
+            " \u00b7 \u0434\u043e " +
+            exp +
+            "</small>" +
+            "<small>IP: " +
+            (u.ip_address || "\u2014") +
+            "</small>" +
+            "</div>" +
+            '<div class="admin-user-actions">' +
+            '<button class="button secondary admin-btn-extend" data-uid="' +
+            u.user_id +
+            '" type="button">+7\u0434</button>' +
+            '<button class="button secondary admin-btn-revoke" data-uid="' +
+            u.user_id +
+            '" type="button">\u041e\u0442\u0437\u044b\u0432</button>' +
+            "</div>";
+          els.adminUsersList.appendChild(row);
+        });
+        els.adminUsersList.querySelectorAll(".admin-btn-extend").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            extendUser(btn.dataset.uid, 7);
+          });
+        });
+        els.adminUsersList.querySelectorAll(".admin-btn-revoke").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            revokeUser(btn.dataset.uid);
+          });
+        });
+      })
+      .catch(function () {
+        if (els.adminUsersList)
+          els.adminUsersList.innerHTML =
+            '<p class="muted">\u041e\u0448\u0438\u0431\u043a\u0430 \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0438</p>';
+      });
+  }
+
+  function revokeUser(userId) {
+    setToast("\u041e\u0442\u0437\u044b\u0432\u0430\u0435\u043c...");
+    callAdminApi("revoke", { user_id: userId })
+      .then(function (data) {
+        setToast(
+          data.ok
+            ? "\u0414\u043e\u0441\u0442\u0443\u043f \u043e\u0442\u0437\u0432\u0430\u043d"
+            : "\u041e\u0448\u0438\u0431\u043a\u0430"
+        );
+        loadAdminUsers();
+      })
+      .catch(function () {
+        setToast("\u041e\u0448\u0438\u0431\u043a\u0430");
+      });
+  }
+
+  function extendUser(userId, days) {
+    setToast("\u041f\u0440\u043e\u0434\u043b\u0435\u0432\u0430\u0435\u043c...");
+    callAdminApi("extend", { user_id: userId, days: days })
+      .then(function (data) {
+        setToast(
+          data.ok
+            ? "\u041f\u0440\u043e\u0434\u043b\u0451\u043d"
+            : "\u041e\u0448\u0438\u0431\u043a\u0430"
+        );
+        loadAdminUsers();
+      })
+      .catch(function () {
+        setToast("\u041e\u0448\u0438\u0431\u043a\u0430");
+      });
+  }
+
+  function issueAccess() {
+    var userId = els.adminIssueUserId.value.trim().replace(/[^0-9]/g, "");
+    var username = els.adminIssueUsername.value.trim().replace(/^@/, "");
+    var planId = els.adminIssuePlan.value;
+    if (!userId) {
+      setToast("\u0412\u0432\u0435\u0434\u0438\u0442\u0435 User ID");
+      return;
+    }
+    els.adminIssueStatus.textContent = "\u0412\u044b\u0434\u0430\u0451\u043c...";
+    els.adminIssueSubmit.disabled = true;
+    callAdminApi("issue", { user_id: userId, username: username, plan_id: planId })
+      .then(function (data) {
+        if (data.ok) {
+          els.adminIssueStatus.textContent =
+            "\u0413\u043e\u0442\u043e\u0432\u043e! IP: " + (data.ipAddress || "\u2014");
+          setToast("\u0414\u043e\u0441\u0442\u0443\u043f \u0432\u044b\u0434\u0430\u043d");
+        } else {
+          els.adminIssueStatus.textContent =
+            "\u041e\u0448\u0438\u0431\u043a\u0430: " + (data.error || "");
+          setToast("\u041e\u0448\u0438\u0431\u043a\u0430");
+        }
+        els.adminIssueSubmit.disabled = false;
+      })
+      .catch(function () {
+        els.adminIssueStatus.textContent = "\u041e\u0448\u0438\u0431\u043a\u0430 \u0437\u0430\u043f\u0440\u043e\u0441\u0430";
+        els.adminIssueSubmit.disabled = false;
+        setToast("\u041e\u0448\u0438\u0431\u043a\u0430");
+      });
+  }
+
   function openAdminPanel() {
+    switchAdminTab("prices");
     var overrides = getAdminPriceOverrides();
     var allPlans = (config.plans || [])
       .map(normalizePlan)
@@ -1735,6 +1929,19 @@
     els.adminPanelBackdrop.addEventListener("click", closeAdminPanel);
     els.adminSave.addEventListener("click", saveAdminPrices);
     els.adminReset.addEventListener("click", resetAdminPrices);
+
+    // Admin: tabs
+    document.querySelectorAll(".admin-tab").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var tab = btn.dataset.tab;
+        switchAdminTab(tab);
+        if (tab === "users") loadAdminUsers();
+        if (tab === "stats") loadAdminStats();
+      });
+    });
+    if (els.adminUsersRefresh) els.adminUsersRefresh.addEventListener("click", loadAdminUsers);
+    if (els.adminStatsRefresh) els.adminStatsRefresh.addEventListener("click", loadAdminStats);
+    if (els.adminIssueSubmit) els.adminIssueSubmit.addEventListener("click", issueAccess);
 
     if (!hasTelegramContext()) {
       resetAccessView(

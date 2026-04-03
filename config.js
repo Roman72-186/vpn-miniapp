@@ -10,6 +10,7 @@
     createInvoiceUrl:
       "https://n8n.creativeanalytic.ru/webhook/vpn-miniapp-create-invoice",
     statusUrl: "https://n8n.creativeanalytic.ru/webhook/vpn-miniapp-status",
+    adminUrl: "https://n8n.creativeanalytic.ru/webhook/vpn-miniapp-admin",
   },
   plans: [
     {

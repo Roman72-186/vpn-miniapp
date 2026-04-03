@@ -14,10 +14,10 @@
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260403-16" />
+    <link rel="stylesheet" href="./styles.css?v=20260403-17" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
-    <script src="./config.js?v=20260403-14"></script>
+    <script src="./config.js?v=20260403-15"></script>
   </head>
   <body>
     <main class="app">
@@ -315,7 +315,7 @@
       </div>
     </div>
 
-    <script src="./app.js?v=20260403-14"></script>
+    <script src="./app.js?v=20260403-17"></script>
 
     <!-- Admin: password prompt -->
     <div
@@ -357,7 +357,7 @@
       </div>
     </div>
 
-    <!-- Admin: price editor -->
+    <!-- Admin: panel -->
     <div
       id="admin-panel-modal"
       class="qr-modal hidden"
@@ -365,7 +365,7 @@
       aria-modal="true"
     >
       <div class="qr-modal-backdrop" id="admin-panel-backdrop"></div>
-      <div class="qr-modal-panel">
+      <div class="qr-modal-panel admin-panel-wide">
         <button
           id="admin-panel-close"
           class="qr-close"
@@ -375,17 +375,61 @@
           x
         </button>
         <p class="eyebrow">Настройки 🦊</p>
-        <h2>Цены на тарифы</h2>
-        <div id="admin-prices-list"></div>
-        <p class="muted admin-hint">Цены в Telegram Stars. 0 = бесплатно.</p>
-        <div class="buttons" style="margin-top: 16px">
-          <button id="admin-save" class="button primary" type="button">
-            Сохранить
-          </button>
-          <button id="admin-reset" class="button secondary" type="button">
-            Сбросить
-          </button>
+        <h2>Панель управления</h2>
+
+        <div class="admin-tabs">
+          <button class="admin-tab active" data-tab="prices" type="button">Цены</button>
+          <button class="admin-tab" data-tab="users" type="button">Пользователи</button>
+          <button class="admin-tab" data-tab="stats" type="button">Статистика</button>
+          <button class="admin-tab" data-tab="issue" type="button">Выдать</button>
         </div>
+
+        <!-- Tab: Prices -->
+        <div id="admin-tab-prices" class="admin-tab-content">
+          <div id="admin-prices-list"></div>
+          <p class="muted admin-hint">Цены в Telegram Stars. 0 = бесплатно.</p>
+          <div class="buttons" style="margin-top: 16px">
+            <button id="admin-save" class="button primary" type="button">Сохранить</button>
+            <button id="admin-reset" class="button secondary" type="button">Сбросить</button>
+          </div>
+        </div>
+
+        <!-- Tab: Users -->
+        <div id="admin-tab-users" class="admin-tab-content hidden">
+          <div id="admin-users-list" class="admin-users-list"></div>
+          <div class="buttons" style="margin-top: 12px">
+            <button id="admin-users-refresh" class="button secondary" type="button">Обновить</button>
+          </div>
+        </div>
+
+        <!-- Tab: Stats -->
+        <div id="admin-tab-stats" class="admin-tab-content hidden">
+          <div id="admin-stats-grid" class="admin-stat-grid"></div>
+          <div class="buttons" style="margin-top: 12px">
+            <button id="admin-stats-refresh" class="button secondary" type="button">Обновить</button>
+          </div>
+        </div>
+
+        <!-- Tab: Issue -->
+        <div id="admin-tab-issue" class="admin-tab-content hidden">
+          <div class="admin-issue-form">
+            <label class="admin-price-label">User ID (Telegram)</label>
+            <input id="admin-issue-userid" type="number" class="admin-input" placeholder="123456789" autocomplete="off" />
+            <label class="admin-price-label" style="margin-top:8px">Username (опц.)</label>
+            <input id="admin-issue-username" type="text" class="admin-input" placeholder="@username" autocomplete="off" />
+            <label class="admin-price-label" style="margin-top:8px">Тариф</label>
+            <select id="admin-issue-plan" class="admin-input">
+              <option value="vpn_7d">на 7 дней</option>
+              <option value="vpn_30d" selected>на 30 дней</option>
+              <option value="vpn_free_3d">Пробный (3 дня)</option>
+            </select>
+          </div>
+          <p id="admin-issue-status" class="muted admin-hint"></p>
+          <div class="buttons" style="margin-top: 12px">
+            <button id="admin-issue-submit" class="button primary" type="button">Выдать доступ</button>
+          </div>
+        </div>
+
       </div>
     </div>
   </body>

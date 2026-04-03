@@ -967,3 +967,130 @@ body.modal-open { overflow: hidden; }
 .admin-price-input:focus {
   border-color: rgba(0, 200, 255, 0.5);
 }
+
+/* ── Admin: tabs ─────────────────────────────────────────── */
+.admin-panel-wide { max-width: 480px; }
+
+.admin-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 12px 0 16px;
+  background: rgba(8, 18, 45, 0.6);
+  border-radius: 12px;
+  padding: 4px;
+}
+
+.admin-tab {
+  flex: 1;
+  padding: 7px 4px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 180ms, color 180ms;
+  white-space: nowrap;
+}
+
+.admin-tab.active {
+  background: rgba(0, 229, 255, 0.12);
+  color: var(--accent);
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.15);
+}
+
+.admin-tab-content { display: block; }
+.admin-tab-content.hidden { display: none; }
+
+/* ── Admin: users list ───────────────────────────────────── */
+.admin-users-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.admin-user-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(30, 70, 200, 0.12);
+}
+
+.admin-user-row:last-child { border-bottom: none; }
+
+.admin-user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-user-info strong {
+  display: block;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-user-info small {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.admin-user-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.admin-user-actions .button {
+  padding: 5px 10px;
+  font-size: 11px;
+  border-radius: 8px;
+}
+
+/* ── Admin: stats grid ───────────────────────────────────── */
+.admin-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.admin-stat-card {
+  background: rgba(8, 18, 45, 0.7);
+  border: 1px solid rgba(30, 90, 220, 0.2);
+  border-radius: 12px;
+  padding: 14px 10px;
+  text-align: center;
+}
+
+.admin-stat-num {
+  font-size: 22px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.admin-stat-label {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* ── Admin: issue form ───────────────────────────────────── */
+.admin-issue-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
