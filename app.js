@@ -356,6 +356,7 @@
     adminIssuePlan: document.getElementById("admin-issue-plan"),
     adminIssueSubmit: document.getElementById("admin-issue-submit"),
     adminIssueStatus: document.getElementById("admin-issue-status"),
+    adminTrigger: document.getElementById("admin-trigger"),
   };
 
   const state = {
@@ -1891,21 +1892,12 @@
       });
     });
 
-    // Admin: triple-tap on title
-    var titleTapCount = 0;
-    var titleTapTimer = null;
-    els.title.addEventListener("click", function () {
-      titleTapCount++;
-      clearTimeout(titleTapTimer);
-      if (titleTapCount >= 3) {
-        titleTapCount = 0;
+    // Admin: hidden trigger button (top-right corner of hero)
+    if (els.adminTrigger) {
+      els.adminTrigger.addEventListener("click", function () {
         openAdminPassword();
-      } else {
-        titleTapTimer = setTimeout(function () {
-          titleTapCount = 0;
-        }, 600);
-      }
-    });
+      });
+    }
 
     // Admin: password modal
     els.adminPasswordSubmit.addEventListener("click", function () {
