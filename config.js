@@ -62,7 +62,7 @@
     {
       id: "iphone",
       title: "iPhone",
-      description: "Скачать DefaultVPN для iPhone из App Store",
+      description: "Приложение для iPhone (App Store)",
       url: "https://apps.apple.com/ru/app/defaultvpn/id6744725017",
     },
     {
