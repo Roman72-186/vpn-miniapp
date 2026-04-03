@@ -76,7 +76,7 @@
 }
 
 /* ── Reset ────────────────────────────────────────────────── */
-* { box-sizing: border-box; }
+* { box-sizing: border-box; touch-action: pan-x pan-y; }
 
 html, body {
   margin: 0;
