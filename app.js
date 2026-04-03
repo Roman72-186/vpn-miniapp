@@ -1228,35 +1228,59 @@
 
     plans.forEach(function (plan) {
       const card = document.createElement("div");
-      card.className = "plan-card";
+      card.className = `plan-card${plan.isFree ? " plan--free" : ""}`;
       card.dataset.planId = plan.planId;
       card.tabIndex = 0;
 
-      const titleRow = document.createElement("div");
-      titleRow.className = "plan-card-title";
+      if (plan.isFree) {
+        // Бесплатный тариф — горизонтальная карточка с большим БЕСПЛАТНО
+        const freeLabel = document.createElement("span");
+        freeLabel.className = "plan-free-label";
+        freeLabel.textContent = "\u0411\u0415\u0421\u041f\u041b\u0410\u0422\u041d\u041e"; // БЕСПЛАТНО
 
-      const titleWrap = document.createElement("div");
-      const title = document.createElement("strong");
-      title.textContent = plan.title;
-      const description = document.createElement("p");
-      description.className = "muted";
-      description.textContent = plan.description;
+        const freeInfo = document.createElement("div");
+        const freeDesc = document.createElement("p");
+        freeDesc.className = "muted";
+        freeDesc.style.margin = "0";
+        freeDesc.textContent = plan.description;
 
-      const badge = document.createElement("span");
-      badge.className = `plan-badge${plan.isFree ? " free" : ""}`;
-      badge.textContent = plan.badge;
+        const meta = document.createElement("div");
+        meta.className = "plan-meta";
+        meta.innerHTML = `<span>${plan.durationDays} \u0434\u043d.</span>`;
 
-      const meta = document.createElement("div");
-      meta.className = "plan-meta";
-      meta.innerHTML = `<span>${plan.durationDays} дн.</span><span>${getPriceLabel(plan)}</span>`;
+        freeInfo.appendChild(freeDesc);
+        freeInfo.appendChild(meta);
 
-      titleWrap.appendChild(title);
-      titleWrap.appendChild(description);
-      titleRow.appendChild(titleWrap);
-      titleRow.appendChild(badge);
+        card.appendChild(freeLabel);
+        card.appendChild(freeInfo);
+      } else {
+        // Платный тариф — стандартная карточка
+        const titleRow = document.createElement("div");
+        titleRow.className = "plan-card-title";
 
-      card.appendChild(titleRow);
-      card.appendChild(meta);
+        const titleWrap = document.createElement("div");
+        const title = document.createElement("strong");
+        title.textContent = plan.title;
+        const description = document.createElement("p");
+        description.className = "muted";
+        description.textContent = plan.description;
+
+        const badge = document.createElement("span");
+        badge.className = "plan-badge";
+        badge.textContent = plan.badge;
+
+        const meta = document.createElement("div");
+        meta.className = "plan-meta";
+        meta.innerHTML = `<span>${plan.durationDays} \u0434\u043d.</span><span>${getPriceLabel(plan)}</span>`;
+
+        titleWrap.appendChild(title);
+        titleWrap.appendChild(description);
+        titleRow.appendChild(titleWrap);
+        titleRow.appendChild(badge);
+
+        card.appendChild(titleRow);
+        card.appendChild(meta);
+      }
 
       card.addEventListener("click", function () {
         selectPlan(plan.planId);

@@ -23,7 +23,7 @@
     },
     {
       planId: "vpn_7d",
-      title: "Сервис из трёх букв 🦊 на 7 дней",
+      title: "на 7 дней",
       description: "Короткий платный доступ на неделю.",
       amountStars: 1,
       durationDays: 7,
@@ -32,7 +32,7 @@
     },
     {
       planId: "vpn_30d",
-      title: "Сервис из трёх букв 🦊 на 30 дней",
+      title: "на 30 дней",
       description: "Основной месячный доступ.",
       amountStars: 299,
       durationDays: 30,

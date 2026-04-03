@@ -175,7 +175,7 @@ h2 { font-size: clamp(16px, 3vw, 22px); font-weight: 700; }
 /* ── Plan cards ───────────────────────────────────────────── */
 .plan-list {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -235,6 +235,31 @@ h2 { font-size: clamp(16px, 3vw, 22px); font-weight: 700; }
 }
 
 .plan-card strong { font-size: 15px; font-weight: 700; }
+
+/* Free plan — full width, centered БЕСПЛАТНО */
+.plan-card.plan--free {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-direction: row;
+}
+
+.plan-card.plan--free .plan-free-label {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-shadow: 0 0 18px var(--accent-glow);
+  white-space: nowrap;
+}
+
+.plan-card.plan--free .plan-meta {
+  flex-direction: row;
+  align-items: center;
+}
 
 .plan-meta {
   display: flex;
@@ -335,7 +360,10 @@ h2 { font-size: clamp(16px, 3vw, 22px); font-weight: 700; }
   flex-wrap: wrap;
 }
 
-.config-actions .button { flex: 1 1 160px; }
+.buttons.config-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
 
 .button {
   border: 0;
@@ -643,9 +671,9 @@ body.modal-open { overflow: hidden; }
   /* Row 5: Instructions — full width */
   .app > section:last-of-type { grid-column: 1 / -1; }
 
-  /* Plans in half-width: vertical list */
+  /* Plans in half-width: free full-width + paid 2-col */
   #plans-section .plan-list {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   /* Platforms in half-width: 2 columns */
@@ -736,7 +764,11 @@ body.modal-open { overflow: hidden; }
   .platform-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .download-list  { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
-  .config-actions .button { flex-basis: auto; }
+  .buttons.config-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .config-actions .button { width: auto; }
 
   .section-head { gap: 8px; }
 
