@@ -619,27 +619,41 @@ body.modal-open { overflow: hidden; }
   font-weight: 600;
 }
 
-/* ── Desktop: 2-column layout ─────────────────────────────── */
+/* ── Desktop: grouped rows layout ────────────────────────── */
 @media (min-width: 780px) {
   .app {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 16px;
   }
 
-  /* Full-width sections */
+  /* Row 1: Hero — full width */
   .app > .hero.card          { grid-column: 1 / -1; }
-  .app > .grid               { grid-column: 1 / -1; }
-  .app > #plans-section      { grid-column: 1 / -1; }
-  .app > #platforms-section  { grid-column: 1 / -1; }
 
-  /* Side-by-side: actions (left) | downloads+config (right) */
+  /* Row 2: User + Access — full width (2 cards inside) */
+  .app > .grid:not(.wide)    { grid-column: 1 / -1; }
+
+  /* Row 3: Plans (left) | Platforms (right) */
+  .app > #plans-section      { grid-column: 1 / 2; align-self: start; }
+  .app > #platforms-section  { grid-column: 2 / 3; align-self: start; }
+
+  /* Row 4: Actions (left) | Downloads+Config (right) */
   .app > #actions-section    { grid-column: 1 / 2; align-self: start; }
-  .app > .grid.wide          { grid-column: 2 / 3; }
+  .app > .grid.wide          { grid-column: 2 / 3; align-self: start; }
 
-  /* Instructions full-width */
-  .app > .card:last-of-type  { grid-column: 1 / -1; }
+  /* Row 5: Instructions — full width */
+  .app > section:last-of-type { grid-column: 1 / -1; }
 
-  /* When .grid.wide is in a single column — stack downloads+config */
+  /* Plans in half-width: vertical list */
+  #plans-section .plan-list {
+    grid-template-columns: 1fr;
+  }
+
+  /* Platforms in half-width: 2 columns */
+  #platforms-section .platform-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Downloads+Config stacked inside their column */
   .grid.wide {
     grid-template-columns: 1fr;
   }
