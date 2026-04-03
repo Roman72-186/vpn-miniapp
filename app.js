@@ -717,43 +717,19 @@
       return;
     }
 
-    const platform = getCurrentPlatform();
-    const isDefaultVpnPlatform = platform && (platform.id === "iphone" || platform.id === "ipad");
     const baseName = buildFileBaseName();
 
-    if (isDefaultVpnPlatform && state.iphoneConfigUri) {
+    if (state.iphoneConfigUri) {
+      // Для всех платформ — vpn:// URI (AmneziaVPN универсален)
       setLinkState(
         els.downloadLink,
         state.iphoneConfigUri,
         "\u041e\u0442\u043a\u0440\u044b\u0442\u044c",
       );
-      const txtBlob = new Blob([configText], { type: "text/plain;charset=utf-8" });
-      state.textDownloadUrl = window.URL.createObjectURL(txtBlob);
-      setLinkState(
-        els.downloadTextLink,
-        state.textDownloadUrl,
-        TEXTS.downloadTxt,
-        `${baseName}.txt`,
-      );
-      return;
     }
 
-    const confBlob = new Blob([configText], {
-      type: "text/plain;charset=utf-8",
-    });
-    const txtBlob = new Blob([configText], {
-      type: "text/plain;charset=utf-8",
-    });
-
-    state.confDownloadUrl = window.URL.createObjectURL(confBlob);
+    const txtBlob = new Blob([configText], { type: "text/plain;charset=utf-8" });
     state.textDownloadUrl = window.URL.createObjectURL(txtBlob);
-
-    setLinkState(
-      els.downloadLink,
-      state.confDownloadUrl,
-      TEXTS.downloadConf,
-      `${baseName}.conf`,
-    );
     setLinkState(
       els.downloadTextLink,
       state.textDownloadUrl,
@@ -763,11 +739,8 @@
   }
 
   function renderQrCanvas(canvas, size, onSuccess) {
-    const platform = getCurrentPlatform();
-    const isDefaultVpnPlatform = platform && (platform.id === "iphone" || platform.id === "ipad");
-    const qrData = (isDefaultVpnPlatform && state.iphoneConfigUri)
-      ? state.iphoneConfigUri
-      : state.configText;
+    // Для всех платформ используем vpn:// URI если есть, иначе текст конфига
+    const qrData = state.iphoneConfigUri || state.configText;
     if (
       !qrData ||
       !window.QRCode ||
